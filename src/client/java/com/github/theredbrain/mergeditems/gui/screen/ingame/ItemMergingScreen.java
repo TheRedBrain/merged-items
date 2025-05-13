@@ -107,7 +107,8 @@ public class ItemMergingScreen extends HandledScreen<ItemMergingScreenHandler> {
 		int y = this.y;
 		int k;
 		int m;
-		boolean showInactiveSlots = MergedItemsClient.CLIENT_CONFIG.show_inactive_inventory_slots.get();
+
+		boolean showInactiveSlots = MergedItemsClient.showInactiveInventorySlots();
 
 		context.drawTexture(MERGING_BACKGROUND_TEXTURE, x, y, 0, 0, this.backgroundWidth, this.backgroundHeight, this.backgroundWidth, this.backgroundHeight);
 

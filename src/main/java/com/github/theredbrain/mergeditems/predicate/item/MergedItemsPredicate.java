@@ -25,6 +25,6 @@ public record MergedItemsPredicate(
 	}
 
 	public boolean test(ItemStack itemStack, MergedItemsComponent mergedItemsComponent) {
-		return !this.items.isPresent() || ((CollectionPredicate) this.items.get()).test(mergedItemsComponent.iterate());
+		return this.items.isEmpty() || this.items.get().test(mergedItemsComponent.iterate());
 	}
 }

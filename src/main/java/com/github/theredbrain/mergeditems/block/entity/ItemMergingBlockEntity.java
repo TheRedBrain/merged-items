@@ -50,7 +50,11 @@ public class ItemMergingBlockEntity extends BlockEntity {
 	@Override
 	protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
 
-		this.maxMergedItemsAmount = nbt.getInt("maxMergedItemsAmount");
+		if (nbt.contains("maxMergedItemsAmount")) {
+			this.maxMergedItemsAmount = nbt.getInt("maxMergedItemsAmount");
+		} else {
+			this.maxMergedItemsAmount = DEFAULT_MAX_MERGED_ITEMS_AMOUNT;
+		}
 		this.title = nbt.getString("title");
 
 		int listSize = nbt.getInt("listSize");

@@ -2,8 +2,8 @@ package com.github.theredbrain.mergeditems.component.type;
 
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
@@ -13,88 +13,95 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public final class MergedItemsComponent implements TooltipData {
-	public static final MergedItemsComponent DEFAULT = new MergedItemsComponent(List.of());
-	public static final Codec<MergedItemsComponent> CODEC;
-	public static final PacketCodec<RegistryByteBuf, MergedItemsComponent> PACKET_CODEC;
-	final List<ItemStack> stacks;
+public record MergedItemsComponent(Content content/*, Optional<RegistryEntryList<Item>> tag  TODO replace string in 1.21.4*/, String possible_merging_items) {
+	public static final MergedItemsComponent DEFAULT = new MergedItemsComponent();
+	public static final Codec<MergedItemsComponent> CODEC = RecordCodecBuilder.create(
+			instance -> instance.group(
+							MergedItemsComponent.Content.CODEC.fieldOf("content").forGetter(component -> component.content),
+//							RegistryCodecs.entryList(RegistryKeys.ITEM).optionalFieldOf("tag").forGetter(component -> component.tag),
+							Codec.STRING.fieldOf("possible_merging_items").forGetter(component -> component.possible_merging_items)
+					)
+					.apply(instance, MergedItemsComponent::new)
+	);
+	public static final PacketCodec<RegistryByteBuf, MergedItemsComponent> PACKET_CODEC = PacketCodec.tuple(
+			MergedItemsComponent.Content.PACKET_CODEC,
+			component -> component.content,
+//			PacketCodecs.optional(PacketCodecs.registryEntryList(RegistryKeys.ITEM)),
+//			component -> component.tag,
+			PacketCodecs.STRING,
+			component -> component.possible_merging_items,
+			MergedItemsComponent::new
+	);
+//	final List<ItemStack> stacks;
+
+	public MergedItemsComponent() {
+		this(new Content(List.of()), "");
+	}
 
 	public MergedItemsComponent(List<ItemStack> stacks) {
-		this.stacks = stacks;
+		this(new Content(stacks), "");
+	}
+
+	public MergedItemsComponent(List<ItemStack> stacks, String possible_merging_items) {
+		this(new Content(stacks), possible_merging_items);
+	}
+
+//	public MergedItemsComponent(, Optional<RegistryEntryList<Item>> tag) {
+//		this(new Content(List.of()), tag);
+//	}
+
+	public static MergedItemsComponent.Builder builder() {
+		return new MergedItemsComponent.Builder(DEFAULT);
 	}
 
 	public ItemStack get(int index) {
-		return (ItemStack) this.stacks.get(index);
+		return (ItemStack) this.content.stacks.get(index);
 	}
 
 	public Stream<ItemStack> stream() {
-		return this.stacks.stream().map(ItemStack::copy);
+		return this.content.stacks.stream().map(ItemStack::copy);
 	}
 
 	public Iterable<ItemStack> iterate() {
-		return this.stacks;
+		return this.content.stacks;
 	}
 
 	public Iterable<ItemStack> iterateCopy() {
-		return Lists.transform(this.stacks, ItemStack::copy);
+		return Lists.transform(this.content.stacks, ItemStack::copy);
 	}
 
 	public int size() {
-		return this.stacks.size();
+		return this.content.stacks.size();
 	}
 
 	public boolean isEmpty() {
-		return this.stacks.isEmpty();
-	}
-
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		} else if (!(o instanceof MergedItemsComponent)) {
-			return false;
-		} else {
-			MergedItemsComponent mergedItemsComponent = (MergedItemsComponent) o;
-			return ItemStack.stacksEqual(this.stacks, mergedItemsComponent.stacks);
-		}
-	}
-
-	public int hashCode() {
-		return ItemStack.listHashCode(this.stacks);
-	}
-
-	public String toString() {
-		return "Merged items" + String.valueOf(this.stacks);
-	}
-
-	static {
-		CODEC = ItemStack.CODEC.listOf().xmap(MergedItemsComponent::new, (component) -> {
-			return component.stacks;
-		});
-		PACKET_CODEC = ItemStack.PACKET_CODEC.collect(PacketCodecs.toList()).xmap(MergedItemsComponent::new, (component) -> {
-			return component.stacks;
-		});
+		return this.content.stacks.isEmpty();
 	}
 
 	public static class Builder {
-		private final List<ItemStack> stacks;
+		private MergedItemsComponent.Content content;
+		private final String string;
+		//		private Optional<RegistryEntryList<Item>> tag;
 
 		public Builder(MergedItemsComponent base) {
-			this.stacks = new ArrayList<>(base.stacks);
+			this.content = new MergedItemsComponent.Content(base.content.stacks);
+			this.string = base.possible_merging_items;
+//			this.tag = base.tag;
 		}
 
 		public MergedItemsComponent.Builder clear() {
-			this.stacks.clear();
+			this.content.stacks.clear();
 			return this;
 		}
 
 		private int addInternal(ItemStack stack) {
 			if (!stack.isStackable()) {
-				for (ItemStack itemStack : this.stacks) {
+				for (ItemStack itemStack : this.content.stacks) {
 					if (ItemStack.areItemsAndComponentsEqual(itemStack, stack)) {
 						return -1;
 					}
 				}
-				return this.stacks.size();
+				return this.content.stacks.size();
 			}
 			return -1;
 		}
@@ -103,22 +110,34 @@ public final class MergedItemsComponent implements TooltipData {
 			if (!stack.isEmpty() && !stack.isStackable()) {
 				int j = this.addInternal(stack);
 				if (j != -1) {
-					this.stacks.add(j, stack);
+					this.content.stacks.add(j, stack);
 				}
 			}
 		}
 
 		@Nullable
 		public ItemStack removeLast() {
-			if (this.stacks.isEmpty()) {
+			if (this.content.stacks.isEmpty()) {
 				return null;
 			} else {
-				return ((ItemStack) this.stacks.removeLast()).copy();
+				return ((ItemStack) this.content.stacks.removeLast()).copy();
 			}
 		}
 
 		public MergedItemsComponent build() {
-			return new MergedItemsComponent(List.copyOf(this.stacks));
+			return new MergedItemsComponent(List.copyOf(this.content.stacks), this.string);
+		}
+	}
+
+	public record Content(List<ItemStack> stacks) {
+		public static final Content DEFAULT = new Content(List.of());
+		public static final Codec<Content> CODEC = ItemStack.CODEC.listOf().xmap(Content::new, component -> component.stacks);
+		public static final PacketCodec<RegistryByteBuf, Content> PACKET_CODEC = ItemStack.PACKET_CODEC
+				.collect(PacketCodecs.toList())
+				.xmap(Content::new, content -> content.stacks);
+
+		public Content(List<ItemStack> stacks) {
+			this.stacks = new ArrayList<ItemStack>(stacks);
 		}
 	}
 }

@@ -6,8 +6,7 @@
   "gui.item_merging.can_merge_label": "Can Merge:",
   "gui.item_merging.title": "Item Merging",
 
-  "item.mergeditems.merged_items_component.tooltip.head_line": "Merged Items",
-  "item.mergeditems.merged_items_component.tooltip.entry": " %s",
+  "item.mergeditems.merged_items_component.tooltip.head_line": "Merged Items:",
 
   "hud.message.item_merging.container_stack_empty": "Found no item to merge into.",
   "hud.message.item_merging.merged_stack_empty": "Found no item to merge.",

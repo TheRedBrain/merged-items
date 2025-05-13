@@ -1,12 +1,12 @@
 package com.github.theredbrain.mergeditems;
 
 import com.github.theredbrain.inventorysizeattributes.InventorySizeAttributes;
-import com.github.theredbrain.mergeditems.component.type.ItemMergingUtilityComponent;
 import com.github.theredbrain.mergeditems.component.type.MergedItemsComponent;
 import com.github.theredbrain.mergeditems.config.ServerConfig;
+import com.github.theredbrain.mergeditems.predicate.item.MergedItemsPredicate;
 import com.github.theredbrain.mergeditems.registry.BlockRegistry;
 import com.github.theredbrain.mergeditems.registry.EntityRegistry;
-import com.github.theredbrain.mergeditems.registry.ItemComponentRegistry;
+import com.github.theredbrain.mergeditems.registry.DataComponentRegistry;
 import com.github.theredbrain.mergeditems.registry.ScreenHandlerTypesRegistry;
 import com.github.theredbrain.mergeditems.registry.ServerPacketRegistry;
 import me.fzzyhmstrs.fzzy_config.api.ConfigApiJava;
@@ -15,6 +15,8 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.component.ComponentType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.loot.ContainerComponentModifier;
+import net.minecraft.predicate.item.ItemSubPredicate;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +27,8 @@ public class MergedItems implements ModInitializer {
 	public static ServerConfig SERVER_CONFIG;
 
 	public static ComponentType<MergedItemsComponent> MERGED_ITEMS_COMPONENT_TYPE;
-	public static ComponentType<ItemMergingUtilityComponent> ITEM_MERGING_UTILITY_COMPONENT_TYPE;
+	public static ItemSubPredicate.Type<MergedItemsPredicate> MERGED_ITEMS_SUB_PREDICATE;
+	public static ContainerComponentModifier<MergedItemsComponent> MERGED_ITEMS_CONTAINER_COMPONENT_MODIFIER;
 
 	public static final boolean isInventorySizeAttributesLoaded = FabricLoader.getInstance().isModLoaded("inventorysizeattributes");
 	public static final boolean isTrinketsLoaded = FabricLoader.getInstance().isModLoaded("trinkets");
@@ -45,7 +48,7 @@ public class MergedItems implements ModInitializer {
 
 		BlockRegistry.init();
 		EntityRegistry.init();
-		ItemComponentRegistry.init();
+		DataComponentRegistry.init();
 		ScreenHandlerTypesRegistry.registerAll();
 		ServerPacketRegistry.init();
 	}

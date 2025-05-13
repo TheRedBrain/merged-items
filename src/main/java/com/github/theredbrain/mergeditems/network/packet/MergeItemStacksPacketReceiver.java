@@ -1,7 +1,6 @@
 package com.github.theredbrain.mergeditems.network.packet;
 
 import com.github.theredbrain.mergeditems.MergedItems;
-import com.github.theredbrain.mergeditems.component.type.ItemMergingUtilityComponent;
 import com.github.theredbrain.mergeditems.component.type.MergedItemsComponent;
 import com.github.theredbrain.mergeditems.screen.ItemMergingScreenHandler;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -76,13 +75,10 @@ public class MergeItemStacksPacketReceiver implements ServerPlayNetworking.PlayP
 					return;
 				}
 
-				ItemMergingUtilityComponent itemMergingUtilityComponent = containerItemStack.get(MergedItems.ITEM_MERGING_UTILITY_COMPONENT_TYPE);
-				if (itemMergingUtilityComponent != null) {
-					String possible_merging_items = itemMergingUtilityComponent.possible_merging_items();
-					if (!possible_merging_items.isEmpty() && !mergedItemStack.isIn(TagKey.of(Registries.ITEM.getKey(), Identifier.of(possible_merging_items)))) {
-						player.sendMessage(Text.translatable("hud.message.item_merging.item_can_not_be_merged_into_item", mergedItemStack.getName(), containerItemStack.getName()));
-						return;
-					}
+				String possible_merging_items = mergedItemsComponentOfContainerItemStack.possible_merging_items();
+				if (!possible_merging_items.isEmpty() && !mergedItemStack.isIn(TagKey.of(Registries.ITEM.getKey(), Identifier.of(possible_merging_items)))) {
+					player.sendMessage(Text.translatable("hud.message.item_merging.item_can_not_be_merged_into_item", mergedItemStack.getName(), containerItemStack.getName()));
+					return;
 				}
 
 				MergedItemsComponent.Builder builder = new MergedItemsComponent.Builder(mergedItemsComponentOfContainerItemStack);

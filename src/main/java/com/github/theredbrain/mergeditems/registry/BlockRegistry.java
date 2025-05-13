@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 public class BlockRegistry {
 
-	public static final Block ITEM_MERGING_BLOCK = registerBlock("item_merging_block", new ItemMergingBlock(Block.Settings.create().mapColor(MapColor.OAK_TAN)), ItemGroups.OPERATOR);
+	public static final Block ITEM_MERGING_BLOCK = registerBlock("item_merging_block", new ItemMergingBlock(Block.Settings.create().mapColor(MapColor.OAK_TAN)), ItemGroups.FUNCTIONAL);
 
 	private static Block registerBlock(String name, Block block, RegistryKey<ItemGroup> itemGroup) {
 		Registry.register(Registries.ITEM, MergedItems.identifier(name), new BlockItem(block, new Item.Settings()));

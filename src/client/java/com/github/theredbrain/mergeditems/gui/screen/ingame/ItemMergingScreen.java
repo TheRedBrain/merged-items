@@ -24,6 +24,7 @@ import java.util.List;
 public class ItemMergingScreen extends HandledScreen<ItemMergingScreenHandler> {
 	private static final Text MELD_BUTTON_LABEL_TEXT = Text.translatable("gui.item_merging.meld_button_label");
 	private static final Text SPLIT_BUTTON_LABEL_TEXT = Text.translatable("gui.item_merging.split_button_label");
+	private static final Text CAN_MERGE_LABEL_TEXT = Text.translatable("gui.item_merging.can_merge_label");
 	public static final Identifier SLOT_TEXTURE = Identifier.ofVanilla("textures/gui/sprites/container/slot.png");
 	public static final Identifier MERGING_BACKGROUND_TEXTURE = MergedItems.identifier("textures/gui/container/merging_background.png");
 
@@ -33,7 +34,7 @@ public class ItemMergingScreen extends HandledScreen<ItemMergingScreenHandler> {
 	private final int hotbarSize;
 	private final int inventorySize;
 	private final PlayerEntity playerEntity;
-	private final List<Identifier> meldableItemTags;
+	private final List<String> meldableItemTags;
 
 	public ItemMergingScreen(ItemMergingScreenHandler handler, PlayerInventory inventory, Text title) {
 		super(handler, inventory, title);
@@ -78,16 +79,21 @@ public class ItemMergingScreen extends HandledScreen<ItemMergingScreenHandler> {
 
 		// text is 8 px high
 
-		context.drawText(this.textRenderer, Text.literal("Can Merge:"), 8, 18, 4210752, false);
 		MutableText text = Text.empty();
-		for (Identifier identifier : this.meldableItemTags) {
-			if (!text.equals(Text.empty())) {
-				text.append(", ");
+		for (String string : this.meldableItemTags) {
+			if (!string.isEmpty()) {
+				String[] stringArray = string.split(":");
+				if (!stringArray[1].isEmpty()) {
+					if (!text.equals(Text.empty())) {
+						text.append(", ");
+					}
+					text.append(Text.translatable("tag.item." + (stringArray[0].isEmpty() ? "minecraft" : stringArray[0]) + "." + stringArray[1].replaceAll("/", ".")));
+				}
 			}
-			text.append(Text.translatable("tag.item." + identifier.getNamespace() + "." + identifier.getPath().replaceAll("/", ".")));
 		}
 		List<OrderedText> list = this.textRenderer.wrapLines(text, 160);
 		if (!list.isEmpty()) {
+			context.drawText(this.textRenderer, CAN_MERGE_LABEL_TEXT, 8, 18, 4210752, false);
 			context.drawText(this.textRenderer, list.getFirst(), 8, 30, 4210752, false);
 			if (list.size() > 1) {
 				context.drawText(this.textRenderer, list.get(1), 8, 42, 4210752, false);

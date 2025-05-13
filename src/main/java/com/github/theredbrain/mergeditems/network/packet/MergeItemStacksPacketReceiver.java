@@ -5,7 +5,6 @@ import com.github.theredbrain.mergeditems.component.type.ItemMergingUtilityCompo
 import com.github.theredbrain.mergeditems.component.type.MergedItemsComponent;
 import com.github.theredbrain.mergeditems.screen.ItemMergingScreenHandler;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
@@ -39,14 +38,15 @@ public class MergeItemStacksPacketReceiver implements ServerPlayNetworking.PlayP
 				return;
 			}
 
-			List<Identifier> identifierList = itemMergingScreenHandler.getMergeableItemTags();
+			List<String> stringList = itemMergingScreenHandler.getMergeableItemTags();
 
 			// if no lists are provided, merging all items is possible
-			boolean bl = identifierList.isEmpty();
-			if (!identifierList.isEmpty()) {
-				for (Identifier identifier : identifierList) {
-					TagKey<Item> itemTagKey = TagKey.of(RegistryKeys.ITEM, identifier);
-					bl = containerItemStack.isIn(itemTagKey);
+			boolean bl = stringList.isEmpty();
+			if (!bl) {
+				for (String string : stringList) {
+					if (!string.isEmpty()) {
+						bl = containerItemStack.isIn(TagKey.of(RegistryKeys.ITEM, Identifier.of(string)));
+					}
 				}
 			}
 			if (!bl) {

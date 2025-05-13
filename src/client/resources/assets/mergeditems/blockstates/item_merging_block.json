@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "mergeditems:block/item_merging_block",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "mergeditems:block/item_merging_block",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "mergeditems:block/item_merging_block"
+    },
+    "facing=west": {
+      "model": "mergeditems:block/item_merging_block",
+      "y": 90
+    }
+  }
+}

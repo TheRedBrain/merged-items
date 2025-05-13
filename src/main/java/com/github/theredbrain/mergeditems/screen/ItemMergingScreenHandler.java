@@ -8,6 +8,7 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -21,7 +22,7 @@ public class ItemMergingScreenHandler extends ScreenHandler {
 	private final PlayerInventory playerInventory;
 	private final World world;
 	private final int maxMergedItemsAmount;
-	private final List<Identifier> mergeableItemTags;
+	private final List<String> mergeableItemTags;
 	Runnable contentsChangedListener = () -> {
 	};
 	public final Inventory inventory = new SimpleInventory(4) {
@@ -42,7 +43,7 @@ public class ItemMergingScreenHandler extends ScreenHandler {
 		this(syncId, playerInventory, data.maxMergedItemsAmount, data.mergableItemTags);
 	}
 
-	public ItemMergingScreenHandler(int syncId, PlayerInventory playerInventory, int maxMergedItemsAmount, List<Identifier> mergeableItemTags) {
+	public ItemMergingScreenHandler(int syncId, PlayerInventory playerInventory, int maxMergedItemsAmount, List<String> mergeableItemTags) {
 		super(ScreenHandlerTypesRegistry.MERGING_ITEMS_SCREEN_HANDLER, syncId);
 		this.playerInventory = playerInventory;
 		this.world = playerInventory.player.getWorld();
@@ -88,7 +89,7 @@ public class ItemMergingScreenHandler extends ScreenHandler {
 		}
 	}
 
-	public List<Identifier> getMergeableItemTags() {
+	public List<String> getMergeableItemTags() {
 		return this.mergeableItemTags;
 	}
 
@@ -98,7 +99,7 @@ public class ItemMergingScreenHandler extends ScreenHandler {
 
 	public record ItemMergingData(
 			int maxMergedItemsAmount,
-			List<Identifier> mergableItemTags
+			List<String> mergableItemTags
 	) {
 
 		public static final PacketCodec<RegistryByteBuf, ItemMergingData> PACKET_CODEC = PacketCodec.of(ItemMergingData::write, ItemMergingData::new);
@@ -106,13 +107,13 @@ public class ItemMergingScreenHandler extends ScreenHandler {
 		public ItemMergingData(RegistryByteBuf registryByteBuf) {
 			this(
 					registryByteBuf.readInt(),
-					registryByteBuf.readList(Identifier.PACKET_CODEC)
+					registryByteBuf.readList(PacketCodecs.STRING)
 			);
 		}
 
 		private void write(RegistryByteBuf registryByteBuf) {
 			registryByteBuf.writeInt(this.maxMergedItemsAmount);
-			registryByteBuf.writeCollection(this.mergableItemTags, Identifier.PACKET_CODEC);
+			registryByteBuf.writeCollection(this.mergableItemTags, PacketCodecs.STRING);
 		}
 	}
 }

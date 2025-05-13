@@ -1,8 +1,9 @@
 {
-  "block.item_merging.default_item_merging_block": "Default Item Merging Block",
+  "block.mergeditems.item_merging_block": "Item Merging Block",
 
   "gui.item_merging.meld_button_label": "Combine",
   "gui.item_merging.split_button_label": "Split",
+  "gui.item_merging.can_merge_label": "Can Merge:",
   "gui.item_merging.title": "Item Merging",
 
   "item.mergeditems.merged_items_component.tooltip.head_line": "Merged Items",

@@ -20,7 +20,7 @@ public class OpenItemMergingScreenPacketReceiver implements ServerPlayNetworking
 
 		int maxMergedItemsAmount = payload.maxMergedItemsAmount();
 		String title = payload.title();
-		List<Identifier> list = payload.list();
+		List<String> list = payload.list();
 
 		context.player().openHandledScreen(new ExtendedScreenHandlerFactory<>() {
 			@Override

@@ -25,6 +25,7 @@ import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -88,7 +89,7 @@ public class ItemMergingBlock extends BlockWithEntity {
 			player.openHandledScreen(new ExtendedScreenHandlerFactory<>() {
 				@Override
 				public ItemMergingScreenHandler.ItemMergingData getScreenOpeningData(ServerPlayerEntity player) {
-					return new ItemMergingScreenHandler.ItemMergingData(itemMergingBlockEntity.getMaxMergedItemsAmount(), itemMergingBlockEntity.getList());
+					return new ItemMergingScreenHandler.ItemMergingData(itemMergingBlockEntity.getDefaultItemCostAmount(), itemMergingBlockEntity.getMergingItemCostMultiplier(), itemMergingBlockEntity.getSplittingItemCostMultiplier(), itemMergingBlockEntity.getMergedItemsAmountMaximum(), itemMergingBlockEntity.getMergableItemTags());
 				}
 
 				@Override
@@ -99,7 +100,7 @@ public class ItemMergingBlock extends BlockWithEntity {
 				@Nullable
 				@Override
 				public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-					return new ItemMergingScreenHandler(syncId, playerInventory, itemMergingBlockEntity.getMaxMergedItemsAmount(), itemMergingBlockEntity.getList());
+					return new ItemMergingScreenHandler(syncId, playerInventory, itemMergingBlockEntity.getDefaultItemCostAmount(), itemMergingBlockEntity.getMergingItemCostMultiplier(), itemMergingBlockEntity.getSplittingItemCostMultiplier(), itemMergingBlockEntity.getMergedItemsAmountMaximum(), itemMergingBlockEntity.getMergableItemTags());
 				}
 			});
 		}
@@ -124,6 +125,11 @@ public class ItemMergingBlock extends BlockWithEntity {
 
 	protected BlockState rotate(BlockState state, BlockRotation rotation) {
 		return (BlockState)state.with(FACING, rotation.rotate((Direction)state.get(FACING)));
+	}
+
+	@Override
+	protected BlockState mirror(BlockState state, BlockMirror mirror) {
+		return state.rotate(mirror.getRotation(state.get(FACING)));
 	}
 
 	static {

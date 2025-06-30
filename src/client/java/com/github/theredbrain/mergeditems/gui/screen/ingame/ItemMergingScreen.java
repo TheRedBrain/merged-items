@@ -11,7 +11,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.OrderedText;
@@ -28,20 +27,8 @@ public class ItemMergingScreen extends HandledScreen<ItemMergingScreenHandler> {
 	public static final Identifier SLOT_TEXTURE = Identifier.ofVanilla("textures/gui/sprites/container/slot.png");
 	public static final Identifier MERGING_BACKGROUND_TEXTURE = MergedItems.identifier("textures/gui/container/merging_background.png");
 
-	private ButtonWidget mergeButton;
-	private ButtonWidget splitButton;
-
-	private final int hotbarSize;
-	private final int inventorySize;
-	private final PlayerEntity playerEntity;
-	private final List<String> meldableItemTags;
-
 	public ItemMergingScreen(ItemMergingScreenHandler handler, PlayerInventory inventory, Text title) {
 		super(handler, inventory, title);
-		this.playerEntity = inventory.player;
-		this.hotbarSize = MergedItems.getActiveHotbarSize(inventory.player);
-		this.inventorySize = MergedItems.getActiveInventorySize(inventory.player);
-		this.meldableItemTags = handler.getMergeableItemTags();
 	}
 
 	@Override
@@ -52,9 +39,9 @@ public class ItemMergingScreen extends HandledScreen<ItemMergingScreenHandler> {
 
 		super.init();
 
-		this.mergeButton = this.addDrawableChild(ButtonWidget.builder(MELD_BUTTON_LABEL_TEXT, button -> this.merge()).dimensions(this.x + 15, this.y + 48 + 28, 64, 20).build());
+		this.addDrawableChild(ButtonWidget.builder(MELD_BUTTON_LABEL_TEXT, button -> this.merge()).dimensions(this.x + 7, this.y + 48 + 28, 64, 20).build());
 
-		this.splitButton = this.addDrawableChild(ButtonWidget.builder(SPLIT_BUTTON_LABEL_TEXT, button -> this.split()).dimensions(this.x + 97, this.y + 48 + 28, 64, 20).build());
+		this.addDrawableChild(ButtonWidget.builder(SPLIT_BUTTON_LABEL_TEXT, button -> this.split()).dimensions(this.x + 105, this.y + 48 + 28, 64, 20).build());
 
 	}
 
@@ -80,7 +67,7 @@ public class ItemMergingScreen extends HandledScreen<ItemMergingScreenHandler> {
 		// text is 8 px high
 
 		MutableText text = Text.empty();
-		for (String string : this.meldableItemTags) {
+		for (String string : this.handler.getMergeableItemTags()) {
 			if (!string.isEmpty()) {
 				String[] stringArray = string.split(":");
 				if (!stringArray[1].isEmpty()) {
@@ -112,14 +99,17 @@ public class ItemMergingScreen extends HandledScreen<ItemMergingScreenHandler> {
 
 		context.drawTexture(MERGING_BACKGROUND_TEXTURE, x, y, 0, 0, this.backgroundWidth, this.backgroundHeight, this.backgroundWidth, this.backgroundHeight);
 
-		for (k = 0; k < (showInactiveSlots ? 27 : Math.min(this.inventorySize, 27)); ++k) {
+		for (k = 0; k < (showInactiveSlots ? 27 : this.handler.getActiveInventorySize()); ++k) {
 			m = (k / 9);
 			context.drawTexture(SLOT_TEXTURE, x + 7 + (k - (m * 9)) * 18, y + 83 + 28 + (m * 18), 0, 0, 18, 18, 18, 18);
 		}
-		for (k = 0; k < (showInactiveSlots ? 9 : Math.min(this.hotbarSize, 9)); ++k) {
+		for (k = 0; k < (showInactiveSlots ? 9 : this.handler.getActiveHotbarSize()); ++k) {
 			context.drawTexture(SLOT_TEXTURE, x + 7 + k * 18, y + 141 + 28, 0, 0, 18, 18, 18, 18);
 		}
 
+		if (this.handler.getShowItemCostSlot()) {
+			context.drawTexture(SLOT_TEXTURE, x + 79, y + 54, 0, 0, 18, 18, 18, 18);
+		}
 	}
 
 }

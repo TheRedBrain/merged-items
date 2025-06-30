@@ -25,9 +25,9 @@ public class MergedItemsClient implements ClientModInitializer {
 		return MergedItems.isInventorySizeAttributesLoaded ? InventorySizeAttributesClient.CLIENT_CONFIG.show_inactive_inventory_slots.get() : true;
 	}
 
-	public static void openItemMergingScreen(MinecraftClient client, int maxMergedItemsAmount, String title, List<String> list) {
+	public static void openItemMergingScreen(MinecraftClient client, int defaultItemCostAmount, double mergingItemCostMultiplier, double splittingItemCostMultiplier, int mergedItemsAmountMaximum, String title, List<String> list) {
 		if (client.player != null) {
-			ClientPlayNetworking.send(new OpenItemMergingScreenPacket(maxMergedItemsAmount, title, list));
+			ClientPlayNetworking.send(new OpenItemMergingScreenPacket(defaultItemCostAmount, mergingItemCostMultiplier, splittingItemCostMultiplier, mergedItemsAmountMaximum, title, list));
 		}
 	}
 

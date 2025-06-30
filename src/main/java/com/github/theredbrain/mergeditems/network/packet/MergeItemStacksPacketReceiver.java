@@ -4,7 +4,9 @@ import com.github.theredbrain.mergeditems.MergedItems;
 import com.github.theredbrain.mergeditems.component.type.MergedItemsComponent;
 import com.github.theredbrain.mergeditems.screen.ItemMergingScreenHandler;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
@@ -24,8 +26,9 @@ public class MergeItemStacksPacketReceiver implements ServerPlayNetworking.PlayP
 		ScreenHandler screenHandler = player.currentScreenHandler;
 
 		if (screenHandler instanceof ItemMergingScreenHandler itemMergingScreenHandler) {
-			ItemStack containerItemStack = itemMergingScreenHandler.inventory.getStack(1);
-			ItemStack mergedItemStack = itemMergingScreenHandler.inventory.getStack(0);
+			ItemStack mergedItemStack = itemMergingScreenHandler.inventory.getStack(0).copy();
+			ItemStack containerItemStack = itemMergingScreenHandler.inventory.getStack(1).copy();
+			ItemStack itemCostItemStack = itemMergingScreenHandler.inventory.getStack(4).copy();
 
 			if (containerItemStack.isEmpty()) {
 				player.sendMessage(Text.translatable("hud.message.item_merging.container_stack_empty"));
@@ -34,6 +37,11 @@ public class MergeItemStacksPacketReceiver implements ServerPlayNetworking.PlayP
 
 			if (mergedItemStack.isEmpty()) {
 				player.sendMessage(Text.translatable("hud.message.item_merging.merged_stack_empty"));
+				return;
+			}
+
+			if (containerItemStack.getItem() == mergedItemStack.getItem()) {
+				player.sendMessage(Text.translatable("hud.message.item_merging.no_merging_of_identical_items"));
 				return;
 			}
 
@@ -60,8 +68,10 @@ public class MergeItemStacksPacketReceiver implements ServerPlayNetworking.PlayP
 
 			MergedItemsComponent mergedItemsComponentOfMeldedItemStack = mergedItemStack.get(MergedItems.MERGED_ITEMS_COMPONENT_TYPE);
 
+			int merged_item_cost = 0;
 			if (mergedItemsComponentOfMeldedItemStack != null && !mergedItemsComponentOfMeldedItemStack.isEmpty()) {
 				player.sendMessage(Text.translatable("hud.message.item_merging.merged_item_stack_has_items_merged", mergedItemStack.getName()));
+				merged_item_cost = mergedItemsComponentOfMeldedItemStack.merging_cost() >= 0 ? mergedItemsComponentOfMeldedItemStack.merging_cost() : itemMergingScreenHandler.getDefaultItemCostAmount();
 			}
 
 			MergedItemsComponent mergedItemsComponentOfContainerItemStack = containerItemStack.get(MergedItems.MERGED_ITEMS_COMPONENT_TYPE);
@@ -70,7 +80,7 @@ public class MergeItemStacksPacketReceiver implements ServerPlayNetworking.PlayP
 				player.sendMessage(Text.translatable("hud.message.item_merging.items_can_not_be_merged_into", containerItemStack.getName()));
 			} else {
 
-				if (mergedItemsComponentOfContainerItemStack.size() >= itemMergingScreenHandler.getMaxMergedItemsAmount()) {
+				if (mergedItemsComponentOfContainerItemStack.size() >= itemMergingScreenHandler.getMergedItemsAmountMaximum()) {
 					player.sendMessage(Text.translatable("hud.message.item_merging.item_has_reached_current_max_amount_of_merged_items", containerItemStack.getName()));
 					return;
 				}
@@ -81,11 +91,30 @@ public class MergeItemStacksPacketReceiver implements ServerPlayNetworking.PlayP
 					return;
 				}
 
+				int container_item_cost = mergedItemsComponentOfContainerItemStack.merging_cost() >= 0 ? mergedItemsComponentOfContainerItemStack.merging_cost() : itemMergingScreenHandler.getDefaultItemCostAmount();
+				int merge_cost_amount = (int) Math.floor((container_item_cost + merged_item_cost) * itemMergingScreenHandler.getMergingItemCostMultiplier());
+				Item itemCost = Registries.ITEM.get(MergedItems.SERVER_CONFIG.merging_item_cost.get());
+				if (merge_cost_amount > 0 && itemCost != Items.AIR && !player.isCreative()) {
+					if ((!itemCostItemStack.isOf(itemCost) || itemCostItemStack.getCount() < merge_cost_amount)) {
+						player.sendMessage(Text.translatable("hud.message.item_merging.missing_item_cost", itemCost.getName()));
+						return;
+					}
+					itemCostItemStack.setCount(itemCostItemStack.getCount() - merge_cost_amount);
+				}
+
 				MergedItemsComponent.Builder builder = new MergedItemsComponent.Builder(mergedItemsComponentOfContainerItemStack);
 				builder.add(mergedItemStack);
+				builder.withMergingCost(container_item_cost + merged_item_cost);
 				containerItemStack.set(MergedItems.MERGED_ITEMS_COMPONENT_TYPE, builder.build());
 
 				itemMergingScreenHandler.inventory.setStack(0, ItemStack.EMPTY);
+				itemMergingScreenHandler.inventory.setStack(1, containerItemStack);
+				if (itemCostItemStack.getCount() < 1) {
+					itemMergingScreenHandler.inventory.setStack(4, ItemStack.EMPTY);
+				} else {
+					itemMergingScreenHandler.inventory.setStack(4, itemCostItemStack);
+				}
+				itemMergingScreenHandler.inventory.markDirty();
 			}
 		}
 	}

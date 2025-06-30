@@ -1,3 +1,9 @@
+# 1.2.0
+
+- added proper support for Inventory Size Attributes
+- fixed an issue where items of the same type could be merged
+- added configurable item cost for merging and splitting items
+
 # 1.1.0
 
 - Item Merging Block rework

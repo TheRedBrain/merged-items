@@ -13,13 +13,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public record MergedItemsComponent(Content content/*, Optional<RegistryEntryList<Item>> tag  TODO replace string in 1.21.4*/, String possible_merging_items) {
+public record MergedItemsComponent(
+		Content content/*,
+		Optional<RegistryEntryList<Item>> tag  TODO replace string in 1.21.4*/,
+		String possible_merging_items,
+		int merging_cost
+) {
 	public static final MergedItemsComponent DEFAULT = new MergedItemsComponent();
 	public static final Codec<MergedItemsComponent> CODEC = RecordCodecBuilder.create(
 			instance -> instance.group(
 							MergedItemsComponent.Content.CODEC.fieldOf("content").forGetter(component -> component.content),
 //							RegistryCodecs.entryList(RegistryKeys.ITEM).optionalFieldOf("tag").forGetter(component -> component.tag),
-							Codec.STRING.fieldOf("possible_merging_items").forGetter(component -> component.possible_merging_items)
+							Codec.STRING.optionalFieldOf("possible_merging_items", "").forGetter(component -> component.possible_merging_items),
+							Codec.INT.optionalFieldOf("merging_cost", -1).forGetter(component -> component.merging_cost)
 					)
 					.apply(instance, MergedItemsComponent::new)
 	);
@@ -30,20 +36,18 @@ public record MergedItemsComponent(Content content/*, Optional<RegistryEntryList
 //			component -> component.tag,
 			PacketCodecs.STRING,
 			component -> component.possible_merging_items,
+			PacketCodecs.INTEGER,
+			component -> component.merging_cost,
 			MergedItemsComponent::new
 	);
 //	final List<ItemStack> stacks;
 
 	public MergedItemsComponent() {
-		this(new Content(List.of()), "");
+		this(new Content(List.of()), "", 0);
 	}
 
-	public MergedItemsComponent(List<ItemStack> stacks) {
-		this(new Content(stacks), "");
-	}
-
-	public MergedItemsComponent(List<ItemStack> stacks, String possible_merging_items) {
-		this(new Content(stacks), possible_merging_items);
+	public MergedItemsComponent(List<ItemStack> stacks, String possible_merging_items, int merging_cost) {
+		this(new Content(stacks), possible_merging_items, merging_cost);
 	}
 
 //	public MergedItemsComponent(, Optional<RegistryEntryList<Item>> tag) {
@@ -82,11 +86,13 @@ public record MergedItemsComponent(Content content/*, Optional<RegistryEntryList
 		private MergedItemsComponent.Content content;
 		private final String string;
 		//		private Optional<RegistryEntryList<Item>> tag;
+		private int merging_cost;
 
 		public Builder(MergedItemsComponent base) {
 			this.content = new MergedItemsComponent.Content(base.content.stacks);
 			this.string = base.possible_merging_items;
 //			this.tag = base.tag;
+			this.merging_cost = base.merging_cost;
 		}
 
 		public MergedItemsComponent.Builder clear() {
@@ -115,17 +121,20 @@ public record MergedItemsComponent(Content content/*, Optional<RegistryEntryList
 			}
 		}
 
-		@Nullable
+		public void withMergingCost(int newCost) {
+			this.merging_cost = newCost;
+		}
+
 		public ItemStack removeLast() {
 			if (this.content.stacks.isEmpty()) {
-				return null;
+				return ItemStack.EMPTY;
 			} else {
 				return ((ItemStack) this.content.stacks.removeLast()).copy();
 			}
 		}
 
 		public MergedItemsComponent build() {
-			return new MergedItemsComponent(List.copyOf(this.content.stacks), this.string);
+			return new MergedItemsComponent(List.copyOf(this.content.stacks), this.string, this.merging_cost);
 		}
 	}
 

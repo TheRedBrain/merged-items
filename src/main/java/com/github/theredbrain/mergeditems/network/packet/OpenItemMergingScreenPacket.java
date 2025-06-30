@@ -11,7 +11,10 @@ import net.minecraft.util.Identifier;
 import java.util.List;
 
 public record OpenItemMergingScreenPacket(
-		int maxMergedItemsAmount,
+		int defaultItemCostAmount,
+		double mergingItemCostMultiplier,
+		double splittingItemCostMultiplier,
+		int mergedItemsAmountMaximum,
 		String title,
 		List<String> list
 ) implements CustomPayload {
@@ -21,12 +24,18 @@ public record OpenItemMergingScreenPacket(
 	public OpenItemMergingScreenPacket(PacketByteBuf buf) {
 		this(
 				buf.readInt(),
+				buf.readDouble(),
+				buf.readDouble(),
+				buf.readInt(),
 				buf.readString(),
 				buf.readList(PacketCodecs.STRING)
 		);
 	}
 	private void write(RegistryByteBuf registryByteBuf) {
-		registryByteBuf.writeInt(this.maxMergedItemsAmount);
+		registryByteBuf.writeInt(this.defaultItemCostAmount);
+		registryByteBuf.writeDouble(this.mergingItemCostMultiplier);
+		registryByteBuf.writeDouble(this.splittingItemCostMultiplier);
+		registryByteBuf.writeInt(this.mergedItemsAmountMaximum);
 		registryByteBuf.writeString(this.title);
 		registryByteBuf.writeCollection(this.list, PacketCodecs.STRING);
 	}

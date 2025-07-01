@@ -1,12 +1,12 @@
 package com.github.theredbrain.mergeditems;
 
-import com.github.theredbrain.inventorysizeattributes.InventorySizeAttributes;
+import com.github.theredbrain.mergeditems.compatibility.InventorySizeAttributesCompat;
 import com.github.theredbrain.mergeditems.component.type.MergedItemsComponent;
 import com.github.theredbrain.mergeditems.config.ServerConfig;
 import com.github.theredbrain.mergeditems.predicate.item.MergedItemsPredicate;
 import com.github.theredbrain.mergeditems.registry.BlockRegistry;
-import com.github.theredbrain.mergeditems.registry.EntityRegistry;
 import com.github.theredbrain.mergeditems.registry.DataComponentRegistry;
+import com.github.theredbrain.mergeditems.registry.EntityRegistry;
 import com.github.theredbrain.mergeditems.registry.ScreenHandlerTypesRegistry;
 import com.github.theredbrain.mergeditems.registry.ServerPacketRegistry;
 import me.fzzyhmstrs.fzzy_config.api.ConfigApiJava;
@@ -34,11 +34,11 @@ public class MergedItems implements ModInitializer {
 	public static final boolean isTrinketsLoaded = FabricLoader.getInstance().isModLoaded("trinkets");
 
 	public static int getActiveInventorySize(PlayerEntity player) {
-		return isInventorySizeAttributesLoaded ? InventorySizeAttributes.getActiveInventorySlotAmount(player) : 27;
+		return isInventorySizeAttributesLoaded ? InventorySizeAttributesCompat.getActiveInventorySize(player) : 27;
 	}
 
 	public static int getActiveHotbarSize(PlayerEntity player) {
-		return isInventorySizeAttributesLoaded ? InventorySizeAttributes.getActiveHotbarSlotAmount(player) : 9;
+		return isInventorySizeAttributesLoaded ? InventorySizeAttributesCompat.getActiveHotbarSize(player) : 9;
 	}
 
 	@Override

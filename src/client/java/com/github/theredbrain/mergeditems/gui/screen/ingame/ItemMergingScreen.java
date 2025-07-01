@@ -10,6 +10,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.ingame.CyclingSlotIcon;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.entity.player.PlayerInventory;
@@ -32,6 +33,12 @@ public class ItemMergingScreen extends HandledScreen<ItemMergingScreenHandler> {
 	private static final Text CAN_MERGE_LABEL_TEXT = Text.translatable("gui.item_merging.can_merge_label");
 	public static final Identifier SLOT_TEXTURE = Identifier.ofVanilla("textures/gui/sprites/container/slot.png");
 	public static final Identifier MERGING_BACKGROUND_TEXTURE = MergedItems.identifier("textures/gui/container/merging_background.png");
+	private static final Identifier MERGING_ITEM_COST_SLOT_BACKGROUND = MergedItems.identifier("item/merging_item_cost");
+	private static final Identifier SPLITTING_ITEM_COST_SLOT_BACKGROUND = MergedItems.identifier("item/splitting_item_cost");
+	private static final List<Identifier> ITEM_COST_SLOT_TEXTURES = List.of(
+			MERGING_ITEM_COST_SLOT_BACKGROUND, SPLITTING_ITEM_COST_SLOT_BACKGROUND
+	);
+	private final CyclingSlotIcon itemCostSlotIcon = new CyclingSlotIcon(40);
 
 	public ItemMergingScreen(ItemMergingScreenHandler handler, PlayerInventory inventory, Text title) {
 		super(handler, inventory, title);
@@ -49,6 +56,15 @@ public class ItemMergingScreen extends HandledScreen<ItemMergingScreenHandler> {
 
 		this.addDrawableChild(ButtonWidget.builder(SPLIT_BUTTON_LABEL_TEXT, button -> this.split()).dimensions(this.x + 105, this.y + 48 + 28, 64, 20).build());
 
+		this.itemCostSlotIcon.updateTexture(ITEM_COST_SLOT_TEXTURES);
+	}
+
+	@Override
+	public void handledScreenTick() {
+		super.handledScreenTick();
+		if (MergedItemsClient.CLIENT_CONFIG.enable_texture_cycling_for_item_cost_slot.get()) {
+			this.itemCostSlotIcon.updateTexture(ITEM_COST_SLOT_TEXTURES);
+		}
 	}
 
 	private void merge() {
@@ -199,6 +215,9 @@ public class ItemMergingScreen extends HandledScreen<ItemMergingScreenHandler> {
 
 		if (this.handler.getShowItemCostSlot()) {
 			context.drawTexture(SLOT_TEXTURE, x + 79, y + 54, 0, 0, 18, 18, 18, 18);
+
+			this.itemCostSlotIcon.render(this.handler, context, delta, this.x, this.y);
+
 		}
 	}
 

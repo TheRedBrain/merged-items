@@ -17,11 +17,17 @@ public class ItemMergingBlockEntity extends BlockEntity {
 	private static final int DEFAULT_DEFAULT_ITEM_COST_AMOUNT = 0;
 	private static final double DEFAULT_MERGING_ITEM_COST_MULTIPLIER = 1.0;
 	private static final double DEFAULT_SPLITTING_ITEM_COST_MULTIPLIER = 1.0;
+	private static final int DEFAULT_DEFAULT_EXP_COST_AMOUNT = 0;
+	private static final double DEFAULT_MERGING_EXP_COST_MULTIPLIER = 1.0;
+	private static final double DEFAULT_SPLITTING_EXP_COST_MULTIPLIER = 1.0;
 	private static final int DEFAULT_MERGED_ITEMS_AMOUNT_MAXIMUM = -1;
 
 	private int defaultItemCostAmount = DEFAULT_DEFAULT_ITEM_COST_AMOUNT;
 	private double mergingItemCostMultiplier = DEFAULT_MERGING_ITEM_COST_MULTIPLIER;
 	private double splittingItemCostMultiplier = DEFAULT_SPLITTING_ITEM_COST_MULTIPLIER;
+	private int defaultExpCostAmount = DEFAULT_DEFAULT_EXP_COST_AMOUNT;
+	private double mergingExpCostMultiplier = DEFAULT_MERGING_EXP_COST_MULTIPLIER;
+	private double splittingExpCostMultiplier = DEFAULT_SPLITTING_EXP_COST_MULTIPLIER;
 	private int mergedItemsAmountMaximum = DEFAULT_MERGED_ITEMS_AMOUNT_MAXIMUM;
 	private String title = DEFAULT_TITLE;
 	private List<String> mergableItemTags = new ArrayList<>();
@@ -43,6 +49,18 @@ public class ItemMergingBlockEntity extends BlockEntity {
 
 		if (this.splittingItemCostMultiplier != DEFAULT_SPLITTING_ITEM_COST_MULTIPLIER) {
 			nbt.putDouble("splittingItemCostMultiplier", this.splittingItemCostMultiplier);
+		}
+
+		if (this.defaultExpCostAmount != DEFAULT_DEFAULT_EXP_COST_AMOUNT) {
+			nbt.putInt("defaultExpCostAmount", this.defaultExpCostAmount);
+		}
+
+		if (this.mergingExpCostMultiplier != DEFAULT_MERGING_EXP_COST_MULTIPLIER) {
+			nbt.putDouble("mergingExpCostMultiplier", this.mergingExpCostMultiplier);
+		}
+
+		if (this.splittingExpCostMultiplier != DEFAULT_SPLITTING_EXP_COST_MULTIPLIER) {
+			nbt.putDouble("splittingExpCostMultiplier", this.splittingExpCostMultiplier);
 		}
 
 		if (this.mergedItemsAmountMaximum != DEFAULT_MERGED_ITEMS_AMOUNT_MAXIMUM) {
@@ -85,6 +103,24 @@ public class ItemMergingBlockEntity extends BlockEntity {
 			this.splittingItemCostMultiplier = nbt.getDouble("splittingItemCostMultiplier");
 		} else {
 			this.splittingItemCostMultiplier = DEFAULT_SPLITTING_ITEM_COST_MULTIPLIER;
+		}
+
+		if (nbt.contains("defaultExpCostAmount")) {
+			this.defaultExpCostAmount = nbt.getInt("defaultExpCostAmount");
+		} else {
+			this.defaultExpCostAmount = DEFAULT_DEFAULT_EXP_COST_AMOUNT;
+		}
+
+		if (nbt.contains("mergingExpCostMultiplier")) {
+			this.mergingExpCostMultiplier = nbt.getDouble("mergingExpCostMultiplier");
+		} else {
+			this.mergingExpCostMultiplier = DEFAULT_MERGING_EXP_COST_MULTIPLIER;
+		}
+
+		if (nbt.contains("splittingExpCostMultiplier")) {
+			this.splittingExpCostMultiplier = nbt.getDouble("splittingExpCostMultiplier");
+		} else {
+			this.splittingExpCostMultiplier = DEFAULT_SPLITTING_EXP_COST_MULTIPLIER;
 		}
 
 		if (nbt.contains("mergedItemsAmountMaximum")) {
@@ -130,6 +166,18 @@ public class ItemMergingBlockEntity extends BlockEntity {
 
 	public double getSplittingItemCostMultiplier() {
 		return this.splittingItemCostMultiplier != 1 ? this.splittingItemCostMultiplier : MergedItems.SERVER_CONFIG.default_splitting_item_cost_multiplier.get();
+	}
+
+	public int getDefaultExpCostAmount() {
+		return this.defaultExpCostAmount > -1 ? this.defaultExpCostAmount : MergedItems.SERVER_CONFIG.default_exp_cost_amount.get();
+	}
+
+	public double getMergingExpCostMultiplier() {
+		return this.mergingExpCostMultiplier != 1 ? this.mergingExpCostMultiplier : MergedItems.SERVER_CONFIG.default_merging_exp_cost_multiplier.get();
+	}
+
+	public double getSplittingExpCostMultiplier() {
+		return this.splittingExpCostMultiplier != 1 ? this.splittingExpCostMultiplier : MergedItems.SERVER_CONFIG.default_splitting_exp_cost_multiplier.get();
 	}
 
 	public int getMergedItemsAmountMaximum() {

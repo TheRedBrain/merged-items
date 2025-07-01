@@ -89,7 +89,7 @@ public class ItemMergingBlock extends BlockWithEntity {
 			player.openHandledScreen(new ExtendedScreenHandlerFactory<>() {
 				@Override
 				public ItemMergingScreenHandler.ItemMergingData getScreenOpeningData(ServerPlayerEntity player) {
-					return new ItemMergingScreenHandler.ItemMergingData(itemMergingBlockEntity.getDefaultItemCostAmount(), itemMergingBlockEntity.getMergingItemCostMultiplier(), itemMergingBlockEntity.getSplittingItemCostMultiplier(), itemMergingBlockEntity.getMergedItemsAmountMaximum(), itemMergingBlockEntity.getMergableItemTags());
+					return new ItemMergingScreenHandler.ItemMergingData(itemMergingBlockEntity.getDefaultItemCostAmount(), itemMergingBlockEntity.getMergingItemCostMultiplier(), itemMergingBlockEntity.getSplittingItemCostMultiplier(), itemMergingBlockEntity.getDefaultExpCostAmount(), itemMergingBlockEntity.getMergingExpCostMultiplier(), itemMergingBlockEntity.getSplittingExpCostMultiplier(), itemMergingBlockEntity.getMergedItemsAmountMaximum(), itemMergingBlockEntity.getMergableItemTags());
 				}
 
 				@Override
@@ -100,7 +100,7 @@ public class ItemMergingBlock extends BlockWithEntity {
 				@Nullable
 				@Override
 				public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-					return new ItemMergingScreenHandler(syncId, playerInventory, itemMergingBlockEntity.getDefaultItemCostAmount(), itemMergingBlockEntity.getMergingItemCostMultiplier(), itemMergingBlockEntity.getSplittingItemCostMultiplier(), itemMergingBlockEntity.getMergedItemsAmountMaximum(), itemMergingBlockEntity.getMergableItemTags());
+					return new ItemMergingScreenHandler(syncId, playerInventory, itemMergingBlockEntity.getDefaultItemCostAmount(), itemMergingBlockEntity.getMergingItemCostMultiplier(), itemMergingBlockEntity.getSplittingItemCostMultiplier(), itemMergingBlockEntity.getDefaultExpCostAmount(), itemMergingBlockEntity.getMergingExpCostMultiplier(), itemMergingBlockEntity.getSplittingExpCostMultiplier(), itemMergingBlockEntity.getMergedItemsAmountMaximum(), itemMergingBlockEntity.getMergableItemTags());
 				}
 			});
 		}

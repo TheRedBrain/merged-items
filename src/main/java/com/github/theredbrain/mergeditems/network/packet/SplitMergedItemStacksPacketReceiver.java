@@ -29,13 +29,13 @@ public class SplitMergedItemStacksPacketReceiver implements ServerPlayNetworking
 				return;
 			}
 
-			MergedItemsComponent mergedItemsComponent = containerItemStack.get(MergedItems.MERGED_ITEMS_COMPONENT_TYPE);
+			MergedItemsComponent mergedItemsComponentOfContainerItemStack = containerItemStack.get(MergedItems.MERGED_ITEMS_COMPONENT_TYPE);
 
-			if (mergedItemsComponent == null) {
+			if (mergedItemsComponentOfContainerItemStack == null) {
 				player.sendMessage(Text.translatable("hud.message.item_splitting.no_merged_items", containerItemStack.getName()));
 			} else {
 
-				if (mergedItemsComponent.isEmpty()) {
+				if (mergedItemsComponentOfContainerItemStack.isEmpty()) {
 					player.sendMessage(Text.translatable("hud.message.item_splitting.no_merged_items", containerItemStack.getName()));
 					return;
 				}
@@ -45,26 +45,38 @@ public class SplitMergedItemStacksPacketReceiver implements ServerPlayNetworking
 					return;
 				}
 
-				int merge_cost_amount = (int) Math.floor((mergedItemsComponent.merging_cost() >= 0 ? mergedItemsComponent.merging_cost() : itemMergingScreenHandler.getDefaultItemCostAmount()) * itemMergingScreenHandler.getSplittingItemCostMultiplier());
+				int exp_cost_amount = (int) Math.floor((mergedItemsComponentOfContainerItemStack.merging_exp_cost() >= 0 ? mergedItemsComponentOfContainerItemStack.merging_exp_cost() : itemMergingScreenHandler.getDefaultExpCostAmount()) * itemMergingScreenHandler.getSplittingExpCostMultiplier());
+				if (exp_cost_amount > 0 && !player.isCreative()) {
+					if (player.experienceLevel < exp_cost_amount) {
+						player.sendMessage(Text.translatable("hud.message.item_splitting.missing_exp_cost"));
+						return;
+					}
+					player.applyEnchantmentCosts(containerItemStack, exp_cost_amount);
+				}
+
+				int item_cost_amount = (int) Math.floor((mergedItemsComponentOfContainerItemStack.merging_item_cost() >= 0 ? mergedItemsComponentOfContainerItemStack.merging_item_cost() : itemMergingScreenHandler.getDefaultItemCostAmount()) * itemMergingScreenHandler.getSplittingItemCostMultiplier());
 				Item itemCost = Registries.ITEM.get(MergedItems.SERVER_CONFIG.merging_item_cost.get());
-				if (merge_cost_amount > 0 && itemCost != Items.AIR && !player.isCreative()) {
-					if ((!itemCostItemStack.isOf(itemCost) || itemCostItemStack.getCount() < merge_cost_amount)) {
+				if (item_cost_amount > 0 && itemCost != Items.AIR && !player.isCreative()) {
+					if ((!itemCostItemStack.isOf(itemCost) || itemCostItemStack.getCount() < item_cost_amount)) {
 						player.sendMessage(Text.translatable("hud.message.item_splitting.missing_item_cost", itemCost.getName()));
 						return;
 					}
-					itemCostItemStack.setCount(itemCostItemStack.getCount() - merge_cost_amount);
+					itemCostItemStack.setCount(itemCostItemStack.getCount() - item_cost_amount);
 				}
-				MergedItemsComponent.Builder builder = new MergedItemsComponent.Builder(mergedItemsComponent);
+				MergedItemsComponent.Builder builder = new MergedItemsComponent.Builder(mergedItemsComponentOfContainerItemStack);
 
 				ItemStack extractedItemStack = builder.removeLast();
 
 				int extracted_item_cost = 0;
+				int extracted_exp_cost = 0;
 				MergedItemsComponent mergedItemsComponentOfExtractedItemStack = extractedItemStack.get(MergedItems.MERGED_ITEMS_COMPONENT_TYPE);
 
 				if (mergedItemsComponentOfExtractedItemStack != null) {
-					extracted_item_cost = mergedItemsComponentOfExtractedItemStack.merging_cost() >= 0 ? mergedItemsComponentOfExtractedItemStack.merging_cost() : itemMergingScreenHandler.getDefaultItemCostAmount();
+					extracted_item_cost = mergedItemsComponentOfExtractedItemStack.merging_item_cost() >= 0 ? mergedItemsComponentOfExtractedItemStack.merging_item_cost() : itemMergingScreenHandler.getDefaultItemCostAmount();
+					extracted_exp_cost = mergedItemsComponentOfExtractedItemStack.merging_exp_cost() >= 0 ? mergedItemsComponentOfExtractedItemStack.merging_exp_cost() : itemMergingScreenHandler.getDefaultExpCostAmount();
 				}
-				builder.withMergingCost(mergedItemsComponent.merging_cost() - extracted_item_cost);
+				builder.setMergingItemCost(mergedItemsComponentOfContainerItemStack.merging_item_cost() - extracted_item_cost);
+				builder.setMergingExpCost(mergedItemsComponentOfContainerItemStack.merging_exp_cost() - extracted_exp_cost);
 
 				containerItemStack.set(MergedItems.MERGED_ITEMS_COMPONENT_TYPE, builder.build());
 				itemMergingScreenHandler.inventory.setStack(2, containerItemStack);

@@ -21,6 +21,9 @@ public class OpenItemMergingScreenPacketReceiver implements ServerPlayNetworking
 		int defaultItemCostAmount = payload.defaultItemCostAmount();
 		double mergingItemCostMultiplier = payload.mergingItemCostMultiplier();
 		double splittingItemCostMultiplier = payload.splittingItemCostMultiplier();
+		int defaultExpCostAmount = payload.defaultExpCostAmount();
+		double mergingExpCostMultiplier = payload.mergingExpCostMultiplier();
+		double splittingExpCostMultiplier = payload.splittingExpCostMultiplier();
 		int mergedItemsAmountMaximum = payload.mergedItemsAmountMaximum();
 		String title = payload.title();
 		List<String> list = payload.list();
@@ -28,7 +31,16 @@ public class OpenItemMergingScreenPacketReceiver implements ServerPlayNetworking
 		context.player().openHandledScreen(new ExtendedScreenHandlerFactory<>() {
 			@Override
 			public ItemMergingScreenHandler.ItemMergingData getScreenOpeningData(ServerPlayerEntity player) {
-				return new ItemMergingScreenHandler.ItemMergingData(defaultItemCostAmount, mergingItemCostMultiplier, splittingItemCostMultiplier, mergedItemsAmountMaximum, list);
+				return new ItemMergingScreenHandler.ItemMergingData(
+						defaultItemCostAmount,
+						mergingItemCostMultiplier,
+						splittingItemCostMultiplier,
+						defaultExpCostAmount,
+						mergingExpCostMultiplier,
+						splittingExpCostMultiplier,
+						mergedItemsAmountMaximum,
+						list
+				);
 			}
 
 			@Override
@@ -39,7 +51,18 @@ public class OpenItemMergingScreenPacketReceiver implements ServerPlayNetworking
 			@Nullable
 			@Override
 			public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-				return new ItemMergingScreenHandler(syncId, playerInventory, defaultItemCostAmount, mergingItemCostMultiplier, splittingItemCostMultiplier, mergedItemsAmountMaximum, list);
+				return new ItemMergingScreenHandler(
+						syncId,
+						playerInventory,
+						defaultItemCostAmount,
+						mergingItemCostMultiplier,
+						splittingItemCostMultiplier,
+						defaultExpCostAmount,
+						mergingExpCostMultiplier,
+						splittingExpCostMultiplier,
+						mergedItemsAmountMaximum,
+						list
+				);
 			}
 		});
 	}

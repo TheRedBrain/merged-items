@@ -28,6 +28,9 @@ public class ItemMergingScreenHandler extends ScreenHandler {
 	private final int defaultItemCostAmount;
 	private final double mergingItemCostMultiplier;
 	private final double splittingItemCostMultiplier;
+	private final int defaultExpCostAmount;
+	private final double mergingExpCostMultiplier;
+	private final double splittingExpCostMultiplier;
 	private final int mergedItemsAmountMaximum;
 	private final List<String> mergeableItemTags;
 	private final int activeHotbarSize;
@@ -51,14 +54,17 @@ public class ItemMergingScreenHandler extends ScreenHandler {
 	};
 
 	public ItemMergingScreenHandler(int syncId, PlayerInventory playerInventory, ItemMergingData data) {
-		this(syncId, playerInventory, data.defaultItemCostAmount, data.mergingItemCostMultiplier, data.splittingItemCostMultiplier, data.mergedItemsAmountMaximum, data.mergableItemTags);
+		this(syncId, playerInventory, data.defaultItemCostAmount, data.mergingItemCostMultiplier, data.splittingItemCostMultiplier, data.defaultExpCostAmount, data.mergingExpCostMultiplier, data.splittingExpCostMultiplier, data.mergedItemsAmountMaximum, data.mergableItemTags);
 	}
 
-	public ItemMergingScreenHandler(int syncId, PlayerInventory playerInventory, int defaultItemCostAmount, double mergingItemCostMultiplier, double splittingItemCostMultiplier, int mergedItemsAmountMaximum, List<String> mergeableItemTags) {
+	public ItemMergingScreenHandler(int syncId, PlayerInventory playerInventory, int defaultItemCostAmount, double mergingItemCostMultiplier, double splittingItemCostMultiplier, int defaultExpCostAmount, double mergingExpCostMultiplier, double splittingExpCostMultiplier, int mergedItemsAmountMaximum, List<String> mergeableItemTags) {
 		super(ScreenHandlerTypesRegistry.MERGING_ITEMS_SCREEN_HANDLER, syncId);
 		this.defaultItemCostAmount = defaultItemCostAmount;
 		this.mergingItemCostMultiplier = mergingItemCostMultiplier;
 		this.splittingItemCostMultiplier = splittingItemCostMultiplier;
+		this.defaultExpCostAmount = defaultExpCostAmount;
+		this.mergingExpCostMultiplier = mergingExpCostMultiplier;
+		this.splittingExpCostMultiplier = splittingExpCostMultiplier;
 		this.mergedItemsAmountMaximum = mergedItemsAmountMaximum;
 		this.mergeableItemTags = mergeableItemTags;
 		this.activeHotbarSize = MergedItems.getActiveHotbarSize(playerInventory.player);
@@ -143,6 +149,18 @@ public class ItemMergingScreenHandler extends ScreenHandler {
 		return splittingItemCostMultiplier;
 	}
 
+	public int getDefaultExpCostAmount() {
+		return defaultExpCostAmount;
+	}
+
+	public double getMergingExpCostMultiplier() {
+		return mergingExpCostMultiplier;
+	}
+
+	public double getSplittingExpCostMultiplier() {
+		return splittingExpCostMultiplier;
+	}
+
 	public int getMergedItemsAmountMaximum() {
 		return this.mergedItemsAmountMaximum;
 	}
@@ -163,6 +181,9 @@ public class ItemMergingScreenHandler extends ScreenHandler {
 			int defaultItemCostAmount,
 			double mergingItemCostMultiplier,
 			double splittingItemCostMultiplier,
+			int defaultExpCostAmount,
+			double mergingExpCostMultiplier,
+			double splittingExpCostMultiplier,
 			int mergedItemsAmountMaximum,
 			List<String> mergableItemTags
 	) {
@@ -175,6 +196,9 @@ public class ItemMergingScreenHandler extends ScreenHandler {
 					registryByteBuf.readDouble(),
 					registryByteBuf.readDouble(),
 					registryByteBuf.readInt(),
+					registryByteBuf.readDouble(),
+					registryByteBuf.readDouble(),
+					registryByteBuf.readInt(),
 					registryByteBuf.readList(PacketCodecs.STRING)
 			);
 		}
@@ -183,6 +207,9 @@ public class ItemMergingScreenHandler extends ScreenHandler {
 			registryByteBuf.writeInt(this.defaultItemCostAmount);
 			registryByteBuf.writeDouble(this.mergingItemCostMultiplier);
 			registryByteBuf.writeDouble(this.splittingItemCostMultiplier);
+			registryByteBuf.writeInt(this.defaultExpCostAmount);
+			registryByteBuf.writeDouble(this.mergingExpCostMultiplier);
+			registryByteBuf.writeDouble(this.splittingExpCostMultiplier);
 			registryByteBuf.writeInt(this.mergedItemsAmountMaximum);
 			registryByteBuf.writeCollection(this.mergableItemTags, PacketCodecs.STRING);
 		}

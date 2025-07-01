@@ -71,7 +71,7 @@ public class MergeItemStacksPacketReceiver implements ServerPlayNetworking.PlayP
 			int merged_item_cost = 0;
 			if (mergedItemsComponentOfMeldedItemStack != null && !mergedItemsComponentOfMeldedItemStack.isEmpty()) {
 				player.sendMessage(Text.translatable("hud.message.item_merging.merged_item_stack_has_items_merged", mergedItemStack.getName()));
-				merged_item_cost = mergedItemsComponentOfMeldedItemStack.merging_cost() >= 0 ? mergedItemsComponentOfMeldedItemStack.merging_cost() : itemMergingScreenHandler.getDefaultItemCostAmount();
+				merged_item_cost = mergedItemsComponentOfMeldedItemStack.merging_item_cost() >= 0 ? mergedItemsComponentOfMeldedItemStack.merging_item_cost() : itemMergingScreenHandler.getDefaultItemCostAmount();
 			}
 
 			MergedItemsComponent mergedItemsComponentOfContainerItemStack = containerItemStack.get(MergedItems.MERGED_ITEMS_COMPONENT_TYPE);
@@ -91,7 +91,16 @@ public class MergeItemStacksPacketReceiver implements ServerPlayNetworking.PlayP
 					return;
 				}
 
-				int container_item_cost = mergedItemsComponentOfContainerItemStack.merging_cost() >= 0 ? mergedItemsComponentOfContainerItemStack.merging_cost() : itemMergingScreenHandler.getDefaultItemCostAmount();
+				int exp_cost_amount = (int) Math.floor((mergedItemsComponentOfContainerItemStack.merging_exp_cost() >= 0 ? mergedItemsComponentOfContainerItemStack.merging_exp_cost() : itemMergingScreenHandler.getDefaultExpCostAmount()) * itemMergingScreenHandler.getMergingExpCostMultiplier());
+				if (exp_cost_amount > 0 && !player.isCreative()) {
+					if (player.experienceLevel < exp_cost_amount) {
+						player.sendMessage(Text.translatable("hud.message.item_merging.missing_exp_cost"));
+						return;
+					}
+					player.applyEnchantmentCosts(containerItemStack, exp_cost_amount);
+				}
+
+				int container_item_cost = mergedItemsComponentOfContainerItemStack.merging_item_cost() >= 0 ? mergedItemsComponentOfContainerItemStack.merging_item_cost() : itemMergingScreenHandler.getDefaultItemCostAmount();
 				int merge_cost_amount = (int) Math.floor((container_item_cost + merged_item_cost) * itemMergingScreenHandler.getMergingItemCostMultiplier());
 				Item itemCost = Registries.ITEM.get(MergedItems.SERVER_CONFIG.merging_item_cost.get());
 				if (merge_cost_amount > 0 && itemCost != Items.AIR && !player.isCreative()) {
@@ -104,7 +113,7 @@ public class MergeItemStacksPacketReceiver implements ServerPlayNetworking.PlayP
 
 				MergedItemsComponent.Builder builder = new MergedItemsComponent.Builder(mergedItemsComponentOfContainerItemStack);
 				builder.add(mergedItemStack);
-				builder.withMergingCost(container_item_cost + merged_item_cost);
+				builder.setMergingItemCost(container_item_cost + merged_item_cost);
 				containerItemStack.set(MergedItems.MERGED_ITEMS_COMPONENT_TYPE, builder.build());
 
 				itemMergingScreenHandler.inventory.setStack(0, ItemStack.EMPTY);

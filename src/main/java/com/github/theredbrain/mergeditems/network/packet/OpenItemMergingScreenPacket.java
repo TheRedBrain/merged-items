@@ -14,6 +14,9 @@ public record OpenItemMergingScreenPacket(
 		int defaultItemCostAmount,
 		double mergingItemCostMultiplier,
 		double splittingItemCostMultiplier,
+		int defaultExpCostAmount,
+		double mergingExpCostMultiplier,
+		double splittingExpCostMultiplier,
 		int mergedItemsAmountMaximum,
 		String title,
 		List<String> list
@@ -27,6 +30,9 @@ public record OpenItemMergingScreenPacket(
 				buf.readDouble(),
 				buf.readDouble(),
 				buf.readInt(),
+				buf.readDouble(),
+				buf.readDouble(),
+				buf.readInt(),
 				buf.readString(),
 				buf.readList(PacketCodecs.STRING)
 		);
@@ -35,6 +41,9 @@ public record OpenItemMergingScreenPacket(
 		registryByteBuf.writeInt(this.defaultItemCostAmount);
 		registryByteBuf.writeDouble(this.mergingItemCostMultiplier);
 		registryByteBuf.writeDouble(this.splittingItemCostMultiplier);
+		registryByteBuf.writeInt(this.defaultExpCostAmount);
+		registryByteBuf.writeDouble(this.mergingExpCostMultiplier);
+		registryByteBuf.writeDouble(this.splittingExpCostMultiplier);
 		registryByteBuf.writeInt(this.mergedItemsAmountMaximum);
 		registryByteBuf.writeString(this.title);
 		registryByteBuf.writeCollection(this.list, PacketCodecs.STRING);

@@ -25,6 +25,9 @@ public class ServerConfig extends Config {
 	public ValidatedInt default_item_cost_amount = new ValidatedInt(0);
 	public ValidatedDouble default_merging_item_cost_multiplier = new ValidatedDouble(1.0);
 	public ValidatedDouble default_splitting_item_cost_multiplier = new ValidatedDouble(1.0);
+	public ValidatedInt default_exp_cost_amount = new ValidatedInt(0);
+	public ValidatedDouble default_merging_exp_cost_multiplier = new ValidatedDouble(1.0);
+	public ValidatedDouble default_splitting_exp_cost_multiplier = new ValidatedDouble(1.0);
 	public ValidatedInt default_merged_items_amount_maximum = new ValidatedInt(1);
 	public ValidatedIdentifier merging_item_cost = ValidatedIdentifier.ofRegistry(Identifier.of("minecraft:lapis_lazuli"), Registries.ITEM);
 

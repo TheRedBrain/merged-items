@@ -7,7 +7,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,8 @@ public record MergedItemsComponent(
 		Content content/*,
 		Optional<RegistryEntryList<Item>> tag  TODO replace string in 1.21.4*/,
 		String possible_merging_items,
-		int merging_cost
+		int merging_item_cost,
+		int merging_exp_cost
 ) {
 	public static final MergedItemsComponent DEFAULT = new MergedItemsComponent();
 	public static final Codec<MergedItemsComponent> CODEC = RecordCodecBuilder.create(
@@ -25,7 +25,8 @@ public record MergedItemsComponent(
 							MergedItemsComponent.Content.CODEC.fieldOf("content").forGetter(component -> component.content),
 //							RegistryCodecs.entryList(RegistryKeys.ITEM).optionalFieldOf("tag").forGetter(component -> component.tag),
 							Codec.STRING.optionalFieldOf("possible_merging_items", "").forGetter(component -> component.possible_merging_items),
-							Codec.INT.optionalFieldOf("merging_cost", -1).forGetter(component -> component.merging_cost)
+							Codec.INT.optionalFieldOf("merging_item_cost", -1).forGetter(component -> component.merging_item_cost),
+							Codec.INT.optionalFieldOf("merging_exp_cost", -1).forGetter(component -> component.merging_item_cost)
 					)
 					.apply(instance, MergedItemsComponent::new)
 	);
@@ -37,17 +38,19 @@ public record MergedItemsComponent(
 			PacketCodecs.STRING,
 			component -> component.possible_merging_items,
 			PacketCodecs.INTEGER,
-			component -> component.merging_cost,
+			component -> component.merging_item_cost,
+			PacketCodecs.INTEGER,
+			component -> component.merging_exp_cost,
 			MergedItemsComponent::new
 	);
 //	final List<ItemStack> stacks;
 
 	public MergedItemsComponent() {
-		this(new Content(List.of()), "", 0);
+		this(new Content(List.of()), "", -1, -1);
 	}
 
-	public MergedItemsComponent(List<ItemStack> stacks, String possible_merging_items, int merging_cost) {
-		this(new Content(stacks), possible_merging_items, merging_cost);
+	public MergedItemsComponent(List<ItemStack> stacks, String possible_merging_items, int merging_item_cost, int merging_exp_cost) {
+		this(new Content(stacks), possible_merging_items, merging_item_cost, merging_exp_cost);
 	}
 
 //	public MergedItemsComponent(, Optional<RegistryEntryList<Item>> tag) {
@@ -86,13 +89,15 @@ public record MergedItemsComponent(
 		private MergedItemsComponent.Content content;
 		private final String string;
 		//		private Optional<RegistryEntryList<Item>> tag;
-		private int merging_cost;
+		private int merging_item_cost;
+		private int merging_exp_cost;
 
 		public Builder(MergedItemsComponent base) {
 			this.content = new MergedItemsComponent.Content(base.content.stacks);
 			this.string = base.possible_merging_items;
 //			this.tag = base.tag;
-			this.merging_cost = base.merging_cost;
+			this.merging_item_cost = base.merging_item_cost;
+			this.merging_exp_cost = base.merging_exp_cost;
 		}
 
 		public MergedItemsComponent.Builder clear() {
@@ -121,8 +126,12 @@ public record MergedItemsComponent(
 			}
 		}
 
-		public void withMergingCost(int newCost) {
-			this.merging_cost = newCost;
+		public void setMergingItemCost(int newCost) {
+			this.merging_item_cost = newCost;
+		}
+
+		public void setMergingExpCost(int newCost) {
+			this.merging_exp_cost = newCost;
 		}
 
 		public ItemStack removeLast() {
@@ -134,7 +143,7 @@ public record MergedItemsComponent(
 		}
 
 		public MergedItemsComponent build() {
-			return new MergedItemsComponent(List.copyOf(this.content.stacks), this.string, this.merging_cost);
+			return new MergedItemsComponent(List.copyOf(this.content.stacks), this.string, this.merging_item_cost, this.merging_exp_cost);
 		}
 	}
 

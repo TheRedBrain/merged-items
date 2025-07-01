@@ -22,13 +22,14 @@ public class ServerConfig extends Config {
 				When set to 'true', similar modifiers (same id, same slot, same operation) will be averaged.
 				""")
 	public ValidatedBoolean merging_averages_similar_modifiers = new ValidatedBoolean(true);
-	public ValidatedInt default_item_cost_amount = new ValidatedInt(0);
+	public ValidatedInt default_item_cost_amount = new ValidatedInt(0, 64, 0);
 	public ValidatedDouble default_merging_item_cost_multiplier = new ValidatedDouble(1.0);
 	public ValidatedDouble default_splitting_item_cost_multiplier = new ValidatedDouble(1.0);
-	public ValidatedInt default_exp_cost_amount = new ValidatedInt(0);
+	public ValidatedInt default_exp_cost_amount = new ValidatedInt(0, Integer.MAX_VALUE, 0);
 	public ValidatedDouble default_merging_exp_cost_multiplier = new ValidatedDouble(1.0);
 	public ValidatedDouble default_splitting_exp_cost_multiplier = new ValidatedDouble(1.0);
 	public ValidatedInt default_merged_items_amount_maximum = new ValidatedInt(1);
 	public ValidatedIdentifier merging_item_cost = ValidatedIdentifier.ofRegistry(Identifier.of("minecraft:lapis_lazuli"), Registries.ITEM);
+	public ValidatedIdentifier splitting_item_cost = ValidatedIdentifier.ofRegistry(Identifier.of("minecraft:lapis_lazuli"), Registries.ITEM);
 
 }

@@ -2,6 +2,7 @@ package com.github.theredbrain.mergeditems.gui.screen.ingame;
 
 import com.github.theredbrain.mergeditems.MergedItems;
 import com.github.theredbrain.mergeditems.MergedItemsClient;
+import com.github.theredbrain.mergeditems.component.type.MergedItemsComponent;
 import com.github.theredbrain.mergeditems.network.packet.MergeItemStacksPacket;
 import com.github.theredbrain.mergeditems.network.packet.SplitMergedItemStacksPacket;
 import com.github.theredbrain.mergeditems.screen.ItemMergingScreenHandler;
@@ -12,11 +13,16 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
@@ -57,6 +63,90 @@ public class ItemMergingScreen extends HandledScreen<ItemMergingScreenHandler> {
 	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 		super.render(context, mouseX, mouseY, delta);
 		this.drawMouseoverTooltip(context, mouseX, mouseY);
+		ItemStack mergedStack = this.handler.slots.get(36).getStack().copy();
+		ItemStack mergingContainerStack = this.handler.slots.get(37).getStack().copy();
+		ItemStack splittingContainerStack = this.handler.slots.get(38).getStack().copy();
+		ItemStack itemCostStack = this.handler.slots.get(40).getStack().copy();
+		boolean playerIsCreative = false;
+
+		if (this.client != null && this.client.player != null) {
+			playerIsCreative = this.client.player.getAbilities().creativeMode;
+		}
+		int experienceLevel = this.handler.player.experienceLevel;
+
+		if (this.isPointWithinBounds(7, 48 + 28, 64, 20, mouseX, mouseY) && !mergedStack.isEmpty() && !mergingContainerStack.isEmpty()) {
+			List<Text> list = new ArrayList<>();
+			list.add(Text.translatable("gui.item_merging.button_tooltip", mergedStack.getName(), mergingContainerStack.getName()));
+
+			if (!playerIsCreative) {
+				int experience_cost_amount = this.handler.merging_exp_cost.get();
+				int item_cost_amount = this.handler.merging_item_cost.get();
+				int existing_item_count = itemCostStack.isOf(Registries.ITEM.get(MergedItems.SERVER_CONFIG.merging_item_cost.get())) ? itemCostStack.getCount() : 0;
+
+				if (item_cost_amount > 0 || experience_cost_amount > 0) {
+					list.add(ScreenTexts.EMPTY);
+				}
+
+				if (item_cost_amount > 0) {
+					MutableText mutableText = Text.literal(item_cost_amount + " ").append(Registries.ITEM.get(MergedItems.SERVER_CONFIG.merging_item_cost.get()).asItem().getName());
+					list.add(mutableText.formatted(existing_item_count >= item_cost_amount ? Formatting.GRAY : Formatting.RED));
+				}
+
+				if (experience_cost_amount > 0) {
+					MutableText mutableText2;
+
+					if (experience_cost_amount == 1) {
+						mutableText2 = Text.translatable("container.enchant.level.one");
+					} else {
+						mutableText2 = Text.translatable("container.enchant.level.many", new Object[]{experience_cost_amount});
+					}
+					list.add(mutableText2.formatted(experienceLevel >= experience_cost_amount ? Formatting.GRAY : Formatting.RED));
+				}
+			}
+			context.drawTooltip(this.textRenderer, list, mouseX, mouseY);
+			return;
+		}
+
+		if (this.isPointWithinBounds(105, 48 + 28, 64, 20, mouseX, mouseY) && !splittingContainerStack.isEmpty()) {
+			MergedItemsComponent mergedItemsComponent = splittingContainerStack.get(MergedItems.MERGED_ITEMS_COMPONENT_TYPE);
+
+			if (mergedItemsComponent != null) {
+				ItemStack splitStack = mergedItemsComponent.getLast();
+
+				if (!splitStack.isEmpty()) {
+					List<Text> list = new ArrayList<>();
+					list.add(Text.translatable("gui.item_splitting.button_tooltip", splitStack.getName(), splittingContainerStack.getName()));
+
+					if (!playerIsCreative) {
+						int experience_cost_amount = this.handler.splitting_exp_cost.get();
+						int item_cost_amount = this.handler.splitting_item_cost.get();
+						int existing_item_count = itemCostStack.isOf(Registries.ITEM.get(MergedItems.SERVER_CONFIG.splitting_item_cost.get())) ? itemCostStack.getCount() : 0;
+
+						if (item_cost_amount > 0 || experience_cost_amount > 0) {
+							list.add(ScreenTexts.EMPTY);
+						}
+
+						if (item_cost_amount > 0) {
+							MutableText mutableText = Text.literal(item_cost_amount + " ").append(Registries.ITEM.get(MergedItems.SERVER_CONFIG.splitting_item_cost.get()).asItem().getName());
+							list.add(mutableText.formatted(existing_item_count >= item_cost_amount ? Formatting.GRAY : Formatting.RED));
+						}
+
+						if (experience_cost_amount > 0) {
+							MutableText mutableText2;
+
+							if (experience_cost_amount == 1) {
+								mutableText2 = Text.translatable("container.enchant.level.one");
+							} else {
+								mutableText2 = Text.translatable("container.enchant.level.many", new Object[]{experience_cost_amount});
+							}
+							list.add(mutableText2.formatted(experienceLevel >= experience_cost_amount ? Formatting.GRAY : Formatting.RED));
+						}
+					}
+					context.drawTooltip(this.textRenderer, list, mouseX, mouseY);
+				}
+			}
+			return;
+		}
 	}
 
 	@Override

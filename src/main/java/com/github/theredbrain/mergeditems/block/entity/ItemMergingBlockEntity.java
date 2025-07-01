@@ -14,10 +14,10 @@ import java.util.List;
 
 public class ItemMergingBlockEntity extends BlockEntity {
 	private static final String DEFAULT_TITLE = "gui.item_merging.title";
-	private static final int DEFAULT_DEFAULT_ITEM_COST_AMOUNT = 0;
+	private static final int DEFAULT_DEFAULT_ITEM_COST_AMOUNT = -1;
 	private static final double DEFAULT_MERGING_ITEM_COST_MULTIPLIER = 1.0;
 	private static final double DEFAULT_SPLITTING_ITEM_COST_MULTIPLIER = 1.0;
-	private static final int DEFAULT_DEFAULT_EXP_COST_AMOUNT = 0;
+	private static final int DEFAULT_DEFAULT_EXP_COST_AMOUNT = -1;
 	private static final double DEFAULT_MERGING_EXP_COST_MULTIPLIER = 1.0;
 	private static final double DEFAULT_SPLITTING_EXP_COST_MULTIPLIER = 1.0;
 	private static final int DEFAULT_MERGED_ITEMS_AMOUNT_MAXIMUM = -1;

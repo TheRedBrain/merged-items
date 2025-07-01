@@ -55,7 +55,7 @@ public class SplitMergedItemStacksPacketReceiver implements ServerPlayNetworking
 				}
 
 				int item_cost_amount = (int) Math.floor((mergedItemsComponentOfContainerItemStack.merging_item_cost() >= 0 ? mergedItemsComponentOfContainerItemStack.merging_item_cost() : itemMergingScreenHandler.getDefaultItemCostAmount()) * itemMergingScreenHandler.getSplittingItemCostMultiplier());
-				Item itemCost = Registries.ITEM.get(MergedItems.SERVER_CONFIG.merging_item_cost.get());
+				Item itemCost = Registries.ITEM.get(MergedItems.SERVER_CONFIG.splitting_item_cost.get());
 				if (item_cost_amount > 0 && itemCost != Items.AIR && !player.isCreative()) {
 					if ((!itemCostItemStack.isOf(itemCost) || itemCostItemStack.getCount() < item_cost_amount)) {
 						player.sendMessage(Text.translatable("hud.message.item_splitting.missing_item_cost", itemCost.getName()));
@@ -67,20 +67,28 @@ public class SplitMergedItemStacksPacketReceiver implements ServerPlayNetworking
 
 				ItemStack extractedItemStack = builder.removeLast();
 
-				int extracted_item_cost = 0;
-				int extracted_exp_cost = 0;
+				int extracted_item_cost;
+				int extracted_exp_cost;
 				MergedItemsComponent mergedItemsComponentOfExtractedItemStack = extractedItemStack.get(MergedItems.MERGED_ITEMS_COMPONENT_TYPE);
 
 				if (mergedItemsComponentOfExtractedItemStack != null) {
 					extracted_item_cost = mergedItemsComponentOfExtractedItemStack.merging_item_cost() >= 0 ? mergedItemsComponentOfExtractedItemStack.merging_item_cost() : itemMergingScreenHandler.getDefaultItemCostAmount();
 					extracted_exp_cost = mergedItemsComponentOfExtractedItemStack.merging_exp_cost() >= 0 ? mergedItemsComponentOfExtractedItemStack.merging_exp_cost() : itemMergingScreenHandler.getDefaultExpCostAmount();
+				} else {
+					extracted_item_cost = itemMergingScreenHandler.getDefaultItemCostAmount();
+					extracted_exp_cost = itemMergingScreenHandler.getDefaultExpCostAmount();
 				}
-				builder.setMergingItemCost(mergedItemsComponentOfContainerItemStack.merging_item_cost() - extracted_item_cost);
-				builder.setMergingExpCost(mergedItemsComponentOfContainerItemStack.merging_exp_cost() - extracted_exp_cost);
+				builder.withMergingItemCost(mergedItemsComponentOfContainerItemStack.merging_item_cost() - extracted_item_cost);
+				builder.withMergingExpCost(mergedItemsComponentOfContainerItemStack.merging_exp_cost() - extracted_exp_cost);
 
 				containerItemStack.set(MergedItems.MERGED_ITEMS_COMPONENT_TYPE, builder.build());
 				itemMergingScreenHandler.inventory.setStack(2, containerItemStack);
 				itemMergingScreenHandler.inventory.setStack(3, extractedItemStack);
+				if (itemCostItemStack.getCount() < 1) {
+					itemMergingScreenHandler.inventory.setStack(4, ItemStack.EMPTY);
+				} else {
+					itemMergingScreenHandler.inventory.setStack(4, itemCostItemStack);
+				}
 				itemMergingScreenHandler.inventory.markDirty();
 			}
 		}

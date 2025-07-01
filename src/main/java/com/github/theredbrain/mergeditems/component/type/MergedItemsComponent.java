@@ -65,6 +65,14 @@ public record MergedItemsComponent(
 		return (ItemStack) this.content.stacks.get(index);
 	}
 
+	public ItemStack getLast() {
+		if (this.isEmpty()) {
+			return ItemStack.EMPTY;
+		} else {
+			return (ItemStack) this.content.stacks.getLast();
+		}
+	}
+
 	public Stream<ItemStack> stream() {
 		return this.content.stacks.stream().map(ItemStack::copy);
 	}
@@ -126,12 +134,14 @@ public record MergedItemsComponent(
 			}
 		}
 
-		public void setMergingItemCost(int newCost) {
+		public MergedItemsComponent.Builder withMergingItemCost(int newCost) {
 			this.merging_item_cost = newCost;
+			return this;
 		}
 
-		public void setMergingExpCost(int newCost) {
+		public MergedItemsComponent.Builder withMergingExpCost(int newCost) {
 			this.merging_exp_cost = newCost;
+			return this;
 		}
 
 		public ItemStack removeLast() {

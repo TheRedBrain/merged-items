@@ -21,11 +21,13 @@
   "hud.message.item_merging.item_has_reached_current_max_amount_of_merged_items": "%s has reached the current maximum amount of merged items.",
   "hud.message.item_merging.item_can_not_be_merged_into_item": "%s can't be merged into %s.",
   "hud.message.item_merging.missing_item_cost": "More %s required.",
+  "hud.message.item_merging.missing_exp_cost": "More experience required.",
 
   "hud.message.item_splitting.container_stack_empty": "No item found.",
   "hud.message.item_splitting.no_merged_items": "%s has no merged items.",
   "hud.message.item_splitting.extract_slot_not_empty": "No space for extracting merged items.",
   "hud.message.item_splitting.missing_item_cost": "More %s required.",
+  "hud.message.item_splitting.missing_exp_cost": "More experience required.",
 
   "mergeditems.client": "Client Side Settings",
 

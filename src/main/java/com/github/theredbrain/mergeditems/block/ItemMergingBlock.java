@@ -27,6 +27,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
+import net.minecraft.util.Nameable;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -94,7 +95,7 @@ public class ItemMergingBlock extends BlockWithEntity {
 
 				@Override
 				public Text getDisplayName() {
-					return Text.translatable(itemMergingBlockEntity.getTitle());
+					return ((Nameable)itemMergingBlockEntity).getDisplayName();
 				}
 
 				@Nullable

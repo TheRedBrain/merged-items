@@ -4,16 +4,20 @@ import com.github.theredbrain.mergeditems.MergedItems;
 import com.github.theredbrain.mergeditems.registry.EntityRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.component.ComponentMap;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.text.Text;
+import net.minecraft.util.Nameable;
 import net.minecraft.util.math.BlockPos;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ItemMergingBlockEntity extends BlockEntity {
-	private static final String DEFAULT_TITLE = "gui.item_merging.title";
+public class ItemMergingBlockEntity extends BlockEntity implements Nameable {
 	private static final int DEFAULT_DEFAULT_ITEM_COST_AMOUNT = -1;
 	private static final double DEFAULT_MERGING_ITEM_COST_MULTIPLIER = 1.0;
 	private static final double DEFAULT_SPLITTING_ITEM_COST_MULTIPLIER = 1.0;
@@ -29,7 +33,8 @@ public class ItemMergingBlockEntity extends BlockEntity {
 	private double mergingExpCostMultiplier = DEFAULT_MERGING_EXP_COST_MULTIPLIER;
 	private double splittingExpCostMultiplier = DEFAULT_SPLITTING_EXP_COST_MULTIPLIER;
 	private int mergedItemsAmountMaximum = DEFAULT_MERGED_ITEMS_AMOUNT_MAXIMUM;
-	private String title = DEFAULT_TITLE;
+	@Nullable
+	private Text customName;
 	private List<String> mergableItemTags = new ArrayList<>();
 
 	public ItemMergingBlockEntity(BlockPos pos, BlockState state) {
@@ -38,6 +43,12 @@ public class ItemMergingBlockEntity extends BlockEntity {
 
 	@Override
 	protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+
+		super.writeNbt(nbt, registryLookup);
+
+		if (this.hasCustomName()) {
+			nbt.putString("CustomName", Text.Serialization.toJsonString(this.customName, registryLookup));
+		}
 
 		if (this.defaultItemCostAmount != DEFAULT_DEFAULT_ITEM_COST_AMOUNT) {
 			nbt.putInt("defaultItemCostAmount", this.defaultItemCostAmount);
@@ -67,10 +78,6 @@ public class ItemMergingBlockEntity extends BlockEntity {
 			nbt.putInt("mergedItemsAmountMaximum", this.mergedItemsAmountMaximum);
 		}
 
-		if (!this.title.equals(DEFAULT_TITLE)) {
-			nbt.putString("title", this.title);
-		}
-
 		if (!this.mergableItemTags.isEmpty()) {
 
 			nbt.putInt("listSize", mergableItemTags.size());
@@ -80,12 +87,16 @@ public class ItemMergingBlockEntity extends BlockEntity {
 
 		}
 
-		super.writeNbt(nbt, registryLookup);
-
 	}
 
 	@Override
 	protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+
+		super.readNbt(nbt, registryLookup);
+
+		if (nbt.contains("CustomName", 8)) {
+			this.customName = tryParseCustomName(nbt.getString("CustomName"), registryLookup);
+		}
 
 		if (nbt.contains("defaultItemCostAmount")) {
 			this.defaultItemCostAmount = nbt.getInt("defaultItemCostAmount");
@@ -129,12 +140,6 @@ public class ItemMergingBlockEntity extends BlockEntity {
 			this.mergedItemsAmountMaximum = DEFAULT_MERGED_ITEMS_AMOUNT_MAXIMUM;
 		}
 
-		if (nbt.contains("title")) {
-			this.title = nbt.getString("title");
-		} else {
-			this.title = DEFAULT_TITLE;
-		}
-
 		int listSize = nbt.getInt("listSize");
 		this.mergableItemTags = new ArrayList<>(List.of());
 		for (int i = 0; i < listSize; i++) {
@@ -143,10 +148,9 @@ public class ItemMergingBlockEntity extends BlockEntity {
 			}
 		}
 
-		super.readNbt(nbt, registryLookup);
-
 	}
 
+	@Override
 	public BlockEntityUpdateS2CPacket toUpdatePacket() {
 		return BlockEntityUpdateS2CPacket.create(this);
 	}
@@ -188,14 +192,6 @@ public class ItemMergingBlockEntity extends BlockEntity {
 		this.mergedItemsAmountMaximum = mergedItemsAmountMaximum;
 	}
 
-	public String getTitle() {
-		return this.title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
 	public List<String> getMergableItemTags() {
 		return this.mergableItemTags;
 	}
@@ -204,4 +200,35 @@ public class ItemMergingBlockEntity extends BlockEntity {
 		this.mergableItemTags = list;
 	}
 
+	@Override
+	public Text getName() {
+		return (Text) (this.customName != null ? this.customName : Text.translatable("gui.item_merging.title"));
+	}
+
+	public void setCustomName(@Nullable Text customName) {
+		this.customName = customName;
+	}
+
+	@Nullable
+	@Override
+	public Text getCustomName() {
+		return this.customName;
+	}
+
+	@Override
+	protected void readComponents(BlockEntity.ComponentsAccess components) {
+		super.readComponents(components);
+		this.customName = (Text) components.get(DataComponentTypes.CUSTOM_NAME);
+	}
+
+	@Override
+	protected void addComponents(ComponentMap.Builder componentMapBuilder) {
+		super.addComponents(componentMapBuilder);
+		componentMapBuilder.add(DataComponentTypes.CUSTOM_NAME, this.customName);
+	}
+
+	@Override
+	public void removeFromCopiedStackNbt(NbtCompound nbt) {
+		nbt.remove("CustomName");
+	}
 }

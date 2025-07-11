@@ -21,9 +21,8 @@ public record MergedItemsComponent(
 		int merging_item_cost,
 		int merging_exp_cost
 ) {
-	public static final byte MERGE_ACTIVE_SPELLS_FLAG = 1;
-	public static final byte MERGE_PASSIVE_SPELLS_FLAG = 2;
-	public static final byte MERGE_SPELL_MODIFIERS_FLAG = 4;
+	public static final byte SPELL_MERGING_ENABLED_FLAG = 1;
+	public static final byte SPELL_MERGING_ALLOWED_FLAG = 2;
 	public static final MergedItemsComponent DEFAULT = new MergedItemsComponent();
 	public static final Codec<MergedItemsComponent> CODEC = RecordCodecBuilder.create(
 			instance -> instance.group(
@@ -93,16 +92,12 @@ public record MergedItemsComponent(
 		}
 	}
 
-	public boolean mergeActiveSpells() {
-		return (this.merge_spells & MERGE_ACTIVE_SPELLS_FLAG) != 0;
+	public boolean isSpellMergingEnabled() {
+		return (this.merge_spells & SPELL_MERGING_ENABLED_FLAG) != 0;
 	}
 
-	public boolean mergePassiveSpells() {
-		return (this.merge_spells & MERGE_PASSIVE_SPELLS_FLAG) != 0;
-	}
-
-	public boolean mergeSpellModifiers() {
-		return (this.merge_spells & MERGE_SPELL_MODIFIERS_FLAG) != 0;
+	public boolean isSpellMergingAllowed() {
+		return (this.merge_spells & SPELL_MERGING_ALLOWED_FLAG) != 0;
 	}
 
 	public Stream<ItemStack> stream() {
@@ -168,11 +163,10 @@ public record MergedItemsComponent(
 			}
 		}
 
-		public MergedItemsComponent.Builder withMergedSpells(boolean merge_active_spells, boolean merge_passive_spells, boolean merge_spell_modifiers) {
+		public MergedItemsComponent.Builder withMergedSpells(boolean enableSpellMerging, boolean allowSpellMerging) {
 			byte flags = (byte) 0;
-			flags = merge_active_spells ? (byte) (flags | MERGE_ACTIVE_SPELLS_FLAG) : flags;
-			flags = merge_passive_spells ? (byte) (flags | MERGE_PASSIVE_SPELLS_FLAG) : flags;
-			flags = merge_spell_modifiers ? (byte) (flags | MERGE_SPELL_MODIFIERS_FLAG) : flags;
+			flags = enableSpellMerging ? (byte) (flags | SPELL_MERGING_ENABLED_FLAG) : flags;
+			flags = allowSpellMerging ? (byte) (flags | SPELL_MERGING_ALLOWED_FLAG) : flags;
 			this.merge_spells = flags;
 			return this;
 		}

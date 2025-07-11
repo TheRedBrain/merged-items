@@ -4,7 +4,6 @@ import com.github.theredbrain.mergeditems.MergedItems;
 import com.github.theredbrain.mergeditems.component.type.MergedItemsComponent;
 import com.github.theredbrain.mergeditems.registry.ScreenHandlerTypesRegistry;
 import com.github.theredbrain.slotcustomizationapi.api.SlotCustomization;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -15,11 +14,11 @@ import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.registry.Registries;
-import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.screen.Property;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.util.List;
@@ -106,11 +105,6 @@ public class ItemMergingScreenHandler extends ScreenHandler {
 			public boolean isEnabled() {
 				return ItemMergingScreenHandler.this.showItemCostSlot;
 			}
-
-			@Override
-			public Pair<Identifier, Identifier> getBackgroundSprite() {
-				return Pair.of(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, ITEM_COST_SLOT_BACKGROUND);
-			}
 		});
 
 		for (i = 0; i < 9; i++) {
@@ -119,6 +113,8 @@ public class ItemMergingScreenHandler extends ScreenHandler {
 		for (i = 9; i < 36; i++) {
 			((SlotCustomization) this.slots.get(i)).slotcustomizationapi$setDisabledOverride(i >= 9 + this.activeInventorySize);
 		}
+		((SlotCustomization) this.slots.get(36)).slotcustomizationapi$setSlotTooltipText(List.of(Text.translatable("gui.slot_tooltip.item_merging.merged_item_slot.line_1")));
+		((SlotCustomization) this.slots.get(37)).slotcustomizationapi$setSlotTooltipText(List.of(Text.translatable("gui.slot_tooltip.item_merging.container_slot.line_1")));
 		this.addProperty(this.merging_item_cost).set(0);
 		this.addProperty(this.splitting_item_cost).set(0);
 		this.addProperty(this.merging_exp_cost).set(0);

@@ -6,6 +6,9 @@
   "gui.item_merging.can_merge_label": "Can Merge:",
   "gui.item_merging.title": "Item Merging",
 
+  "gui.slot_tooltip.item_merging.merged_item_slot.line_1": "Merged Item",
+  "gui.slot_tooltip.item_merging.container_slot.line_1": "Container Item",
+
   "gui.item_merging.button_tooltip": "Merges %s into %s.",
   "gui.item_splitting.button_tooltip": "Splits %s from %s.",
 

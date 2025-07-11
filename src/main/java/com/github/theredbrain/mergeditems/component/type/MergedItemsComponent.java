@@ -16,15 +16,21 @@ public record MergedItemsComponent(
 		Content content/*,
 		Optional<RegistryEntryList<Item>> tag  TODO replace string in 1.21.4*/,
 		String possible_merging_items,
+//		int merged_items_max_amount,
+		byte merge_spells,
 		int merging_item_cost,
 		int merging_exp_cost
 ) {
+	public static final byte MERGE_ACTIVE_SPELLS_FLAG = 1;
+	public static final byte MERGE_PASSIVE_SPELLS_FLAG = 2;
+	public static final byte MERGE_SPELL_MODIFIERS_FLAG = 4;
 	public static final MergedItemsComponent DEFAULT = new MergedItemsComponent();
 	public static final Codec<MergedItemsComponent> CODEC = RecordCodecBuilder.create(
 			instance -> instance.group(
 							MergedItemsComponent.Content.CODEC.fieldOf("content").forGetter(component -> component.content),
 //							RegistryCodecs.entryList(RegistryKeys.ITEM).optionalFieldOf("tag").forGetter(component -> component.tag),
 							Codec.STRING.optionalFieldOf("possible_merging_items", "").forGetter(component -> component.possible_merging_items),
+							Codec.BYTE.optionalFieldOf("merge_spells", (byte)0).forGetter(component -> component.merge_spells),
 							Codec.INT.optionalFieldOf("merging_item_cost", -1).forGetter(component -> component.merging_item_cost),
 							Codec.INT.optionalFieldOf("merging_exp_cost", -1).forGetter(component -> component.merging_item_cost)
 					)
@@ -37,6 +43,8 @@ public record MergedItemsComponent(
 //			component -> component.tag,
 			PacketCodecs.STRING,
 			component -> component.possible_merging_items,
+			PacketCodecs.BYTE,
+			component -> component.merge_spells,
 			PacketCodecs.INTEGER,
 			component -> component.merging_item_cost,
 			PacketCodecs.INTEGER,
@@ -46,11 +54,23 @@ public record MergedItemsComponent(
 //	final List<ItemStack> stacks;
 
 	public MergedItemsComponent() {
-		this(new Content(List.of()), "", -1, -1);
+		this(new Content(List.of()), "", (byte) 0, -1, -1);
 	}
 
-	public MergedItemsComponent(List<ItemStack> stacks, String possible_merging_items, int merging_item_cost, int merging_exp_cost) {
-		this(new Content(stacks), possible_merging_items, merging_item_cost, merging_exp_cost);
+	public MergedItemsComponent(
+			List<ItemStack> stacks,
+			String possible_merging_items,
+			byte merge_spells,
+			int merging_item_cost,
+			int merging_exp_cost
+	) {
+		this(
+				new Content(stacks),
+				possible_merging_items,
+				merge_spells,
+				merging_item_cost,
+				merging_exp_cost
+		);
 	}
 
 //	public MergedItemsComponent(, Optional<RegistryEntryList<Item>> tag) {
@@ -71,6 +91,18 @@ public record MergedItemsComponent(
 		} else {
 			return (ItemStack) this.content.stacks.getLast();
 		}
+	}
+
+	public boolean mergeActiveSpells() {
+		return (this.merge_spells & MERGE_ACTIVE_SPELLS_FLAG) != 0;
+	}
+
+	public boolean mergePassiveSpells() {
+		return (this.merge_spells & MERGE_PASSIVE_SPELLS_FLAG) != 0;
+	}
+
+	public boolean mergeSpellModifiers() {
+		return (this.merge_spells & MERGE_SPELL_MODIFIERS_FLAG) != 0;
 	}
 
 	public Stream<ItemStack> stream() {
@@ -97,6 +129,7 @@ public record MergedItemsComponent(
 		private MergedItemsComponent.Content content;
 		private final String string;
 		//		private Optional<RegistryEntryList<Item>> tag;
+		private byte merge_spells;
 		private int merging_item_cost;
 		private int merging_exp_cost;
 
@@ -104,6 +137,7 @@ public record MergedItemsComponent(
 			this.content = new MergedItemsComponent.Content(base.content.stacks);
 			this.string = base.possible_merging_items;
 //			this.tag = base.tag;
+			this.merge_spells = base.merge_spells;
 			this.merging_item_cost = base.merging_item_cost;
 			this.merging_exp_cost = base.merging_exp_cost;
 		}
@@ -134,6 +168,15 @@ public record MergedItemsComponent(
 			}
 		}
 
+		public MergedItemsComponent.Builder withMergedSpells(boolean merge_active_spells, boolean merge_passive_spells, boolean merge_spell_modifiers) {
+			byte flags = (byte) 0;
+			flags = merge_active_spells ? (byte) (flags | MERGE_ACTIVE_SPELLS_FLAG) : flags;
+			flags = merge_passive_spells ? (byte) (flags | MERGE_PASSIVE_SPELLS_FLAG) : flags;
+			flags = merge_spell_modifiers ? (byte) (flags | MERGE_SPELL_MODIFIERS_FLAG) : flags;
+			this.merge_spells = flags;
+			return this;
+		}
+
 		public MergedItemsComponent.Builder withMergingItemCost(int newCost) {
 			this.merging_item_cost = newCost;
 			return this;
@@ -153,7 +196,7 @@ public record MergedItemsComponent(
 		}
 
 		public MergedItemsComponent build() {
-			return new MergedItemsComponent(List.copyOf(this.content.stacks), this.string, this.merging_item_cost, this.merging_exp_cost);
+			return new MergedItemsComponent(List.copyOf(this.content.stacks), this.string, this.merge_spells, this.merging_item_cost, this.merging_exp_cost);
 		}
 	}
 

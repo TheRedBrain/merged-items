@@ -82,11 +82,11 @@ public class MergedItemsTooltipComponent implements TooltipComponent {
 	}
 
 	private int getColumns() {
-		return /*Math.max(2, */(int) Math.ceil(Math.sqrt((double) this.mergedItemsComponent.size() + 1.0))/*)*/;
+		return (int) Math.ceil(Math.sqrt(this.mergedItemsComponent.size()));
 	}
 
 	private int getRows() {
-		return (int) Math.ceil(((double) this.mergedItemsComponent.size() + 1.0) / (double) this.getColumns());
+		return (int) Math.ceil(((double) this.mergedItemsComponent.size()) / (double) this.getColumns());
 	}
 
 	@Environment(EnvType.CLIENT)

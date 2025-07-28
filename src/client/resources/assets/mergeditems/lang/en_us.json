@@ -22,6 +22,7 @@
   "hud.message.item_merging.merged_item_stack_has_items_merged": "%s has merged items into it.\nIt can't be merged into other items.",
   "hud.message.item_merging.items_can_not_be_merged_into": "It's not possible to merge items into %s.",
   "hud.message.item_merging.item_has_reached_current_max_amount_of_merged_items": "%s has reached the current maximum amount of merged items.",
+  "hud.message.item_merging.similar_item_is_already_merged": "%s has already an item like %s merged into it.",
   "hud.message.item_merging.item_can_not_be_merged_into_item": "%s can't be merged into %s.",
   "hud.message.item_merging.missing_item_cost": "More %s required.",
   "hud.message.item_merging.missing_exp_cost": "More experience required.",

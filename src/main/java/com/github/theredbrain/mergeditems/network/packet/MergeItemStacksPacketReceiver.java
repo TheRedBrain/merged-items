@@ -93,6 +93,13 @@ public class MergeItemStacksPacketReceiver implements ServerPlayNetworking.PlayP
 					return;
 				}
 
+				for (ItemStack itemStack : mergedItemsComponentOfContainerItemStack.iterate()) {
+					if (itemStack.getItem() == mergedItemStack.getItem()) {
+						player.sendMessage(Text.translatable("hud.message.item_merging.similar_item_is_already_merged", containerItemStack.getName(), mergedItemStack.getName()));
+						return;
+					}
+				}
+
 				String possible_merging_items = mergedItemsComponentOfContainerItemStack.possible_merging_items();
 				if (!possible_merging_items.isEmpty() && !mergedItemStack.isIn(TagKey.of(Registries.ITEM.getKey(), Identifier.of(possible_merging_items)))) {
 					player.sendMessage(Text.translatable("hud.message.item_merging.item_can_not_be_merged_into_item", mergedItemStack.getName(), containerItemStack.getName()));

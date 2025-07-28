@@ -1,8 +1,11 @@
 # 1.2.0
 
 - added proper support for Inventory Size Attributes
+- added configurable item and exp cost for merging and splitting items
+- added "merge_content_flags" boolean flags to merged items component, designed to be used by Spell Engine Extension
 - fixed an issue where items of the same type could be merged
-- added configurable item cost for merging and splitting items
+- fixed an issue where items could have multiple items of the same type merged into them
+- fixed merged items tooltip displaying empty slots
 
 # 1.1.0
 

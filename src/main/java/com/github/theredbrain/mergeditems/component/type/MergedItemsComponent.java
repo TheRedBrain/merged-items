@@ -17,19 +17,21 @@ public record MergedItemsComponent(
 		Optional<RegistryEntryList<Item>> tag  TODO replace string in 1.21.4*/,
 		String possible_merging_items,
 //		int merged_items_max_amount,
-		byte merge_spells,
+		byte merge_content_flags,
 		int merging_item_cost,
 		int merging_exp_cost
 ) {
 	public static final byte SPELL_MERGING_ENABLED_FLAG = 1;
 	public static final byte SPELL_MERGING_ALLOWED_FLAG = 2;
+//	public static final byte EQUIPMENT_SET_MERGING_ENABLED_FLAG = 3;
+//	public static final byte EQUIPMENT_SET_MERGING_ALLOWED_FLAG = 4;
 	public static final MergedItemsComponent DEFAULT = new MergedItemsComponent();
 	public static final Codec<MergedItemsComponent> CODEC = RecordCodecBuilder.create(
 			instance -> instance.group(
 							MergedItemsComponent.Content.CODEC.fieldOf("content").forGetter(component -> component.content),
 //							RegistryCodecs.entryList(RegistryKeys.ITEM).optionalFieldOf("tag").forGetter(component -> component.tag),
 							Codec.STRING.optionalFieldOf("possible_merging_items", "").forGetter(component -> component.possible_merging_items),
-							Codec.BYTE.optionalFieldOf("merge_spells", (byte)0).forGetter(component -> component.merge_spells),
+							Codec.BYTE.optionalFieldOf("merge_content_flags", (byte)0).forGetter(component -> component.merge_content_flags),
 							Codec.INT.optionalFieldOf("merging_item_cost", -1).forGetter(component -> component.merging_item_cost),
 							Codec.INT.optionalFieldOf("merging_exp_cost", -1).forGetter(component -> component.merging_item_cost)
 					)
@@ -43,7 +45,7 @@ public record MergedItemsComponent(
 			PacketCodecs.STRING,
 			component -> component.possible_merging_items,
 			PacketCodecs.BYTE,
-			component -> component.merge_spells,
+			component -> component.merge_content_flags,
 			PacketCodecs.INTEGER,
 			component -> component.merging_item_cost,
 			PacketCodecs.INTEGER,
@@ -59,14 +61,14 @@ public record MergedItemsComponent(
 	public MergedItemsComponent(
 			List<ItemStack> stacks,
 			String possible_merging_items,
-			byte merge_spells,
+			byte merge_content_flags,
 			int merging_item_cost,
 			int merging_exp_cost
 	) {
 		this(
 				new Content(stacks),
 				possible_merging_items,
-				merge_spells,
+				merge_content_flags,
 				merging_item_cost,
 				merging_exp_cost
 		);
@@ -93,12 +95,20 @@ public record MergedItemsComponent(
 	}
 
 	public boolean isSpellMergingEnabled() {
-		return (this.merge_spells & SPELL_MERGING_ENABLED_FLAG) != 0;
+		return (this.merge_content_flags & SPELL_MERGING_ENABLED_FLAG) != 0;
 	}
 
 	public boolean isSpellMergingAllowed() {
-		return (this.merge_spells & SPELL_MERGING_ALLOWED_FLAG) != 0;
+		return (this.merge_content_flags & SPELL_MERGING_ALLOWED_FLAG) != 0;
 	}
+
+//	public boolean isEquipmentSetMergingEnabled() {
+//		return (this.merge_content_flags & EQUIPMENT_SET_MERGING_ENABLED_FLAG) != 0;
+//	}
+//
+//	public boolean isEquipmentSetMergingAllowed() {
+//		return (this.merge_content_flags & EQUIPMENT_SET_MERGING_ALLOWED_FLAG) != 0;
+//	}
 
 	public Stream<ItemStack> stream() {
 		return this.content.stacks.stream().map(ItemStack::copy);
@@ -124,7 +134,7 @@ public record MergedItemsComponent(
 		private MergedItemsComponent.Content content;
 		private final String string;
 		//		private Optional<RegistryEntryList<Item>> tag;
-		private byte merge_spells;
+		private byte merge_content_flags;
 		private int merging_item_cost;
 		private int merging_exp_cost;
 
@@ -132,7 +142,7 @@ public record MergedItemsComponent(
 			this.content = new MergedItemsComponent.Content(base.content.stacks);
 			this.string = base.possible_merging_items;
 //			this.tag = base.tag;
-			this.merge_spells = base.merge_spells;
+			this.merge_content_flags = base.merge_content_flags;
 			this.merging_item_cost = base.merging_item_cost;
 			this.merging_exp_cost = base.merging_exp_cost;
 		}
@@ -163,11 +173,18 @@ public record MergedItemsComponent(
 			}
 		}
 
-		public MergedItemsComponent.Builder withMergedSpells(boolean enableSpellMerging, boolean allowSpellMerging) {
+		public MergedItemsComponent.Builder withMergedContent(
+				boolean enableSpellMerging,
+				boolean allowSpellMerging/*,
+				boolean enableEquipmentSetMerging,
+				boolean allowEquipmentSetMerging*/
+		) {
 			byte flags = (byte) 0;
 			flags = enableSpellMerging ? (byte) (flags | SPELL_MERGING_ENABLED_FLAG) : flags;
 			flags = allowSpellMerging ? (byte) (flags | SPELL_MERGING_ALLOWED_FLAG) : flags;
-			this.merge_spells = flags;
+//			flags = enableEquipmentSetMerging ? (byte) (flags | EQUIPMENT_SET_MERGING_ENABLED_FLAG) : flags;
+//			flags = allowEquipmentSetMerging ? (byte) (flags | EQUIPMENT_SET_MERGING_ALLOWED_FLAG) : flags;
+			this.merge_content_flags = flags;
 			return this;
 		}
 
@@ -190,7 +207,7 @@ public record MergedItemsComponent(
 		}
 
 		public MergedItemsComponent build() {
-			return new MergedItemsComponent(List.copyOf(this.content.stacks), this.string, this.merge_spells, this.merging_item_cost, this.merging_exp_cost);
+			return new MergedItemsComponent(List.copyOf(this.content.stacks), this.string, this.merge_content_flags, this.merging_item_cost, this.merging_exp_cost);
 		}
 	}
 
